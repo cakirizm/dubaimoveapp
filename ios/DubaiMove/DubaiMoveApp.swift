@@ -6,11 +6,18 @@ typealias MapScale = MapScaleView
 @main
 struct DubaiMoveApp: App {
     @StateObject private var appState = AppState()
+    @AppStorage("dubaimove.onboarding.completed") private var onboardingCompleted = false
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
-                .environmentObject(appState)
+            Group {
+                if onboardingCompleted {
+                    RootTabView()
+                } else {
+                    OnboardingView(completed: $onboardingCompleted)
+                }
+            }
+            .environmentObject(appState)
         }
     }
 }
@@ -128,7 +135,7 @@ struct GeneratedReport: Identifiable, Hashable {
 }
 
 enum AppRoute: Hashable {
-    case notifications, aiCopilot, map, contract, rentalIncrease, ejari, dewa, cooling, telecom, building, buildingAccess
+    case notifications, aiCopilot, more, map, contract, rentalIncrease, ejari, dewa, cooling, telecom, building, buildingAccess
     case serviceRequest(ServiceCategory), videoInventory, providerMatching, quoteComparison, providerProfile(ProviderQuote), chat(ProviderQuote), booking(ProviderQuote), moveDay
     case moveInInspection, moveOutInspection, conditionReport, handover, deposit, starterPack, leavingDubai, reschedule, calendar, statusShare, multiProperty
     case emergencyMove, concierge, corporateRelocation, family, privacy, offlineSync, quoteProtection, packingLabels, disputeEvidence, support

@@ -1,0 +1,22 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build DubaiMove
+        run: |
+          xcodebuild \
+            -project ios/DubaiMove.xcodeproj \
+            -scheme DubaiMove \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build

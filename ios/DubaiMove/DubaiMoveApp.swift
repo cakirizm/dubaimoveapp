@@ -1,6 +1,8 @@
 import SwiftUI
 import MapKit
 
+typealias MapScale = MapScaleView
+
 @main
 struct DubaiMoveApp: App {
     @StateObject private var appState = AppState()

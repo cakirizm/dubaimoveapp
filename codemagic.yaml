@@ -1,0 +1,63 @@
+workflows:
+  dubai-move-ios:
+    name: Dubai Move iOS
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+      cocoapods: default
+      vars:
+        XCODE_PROJECT: "ios/DubaiMove.xcodeproj"
+        XCODE_SCHEME: "DubaiMove"
+        BUNDLE_ID: "com.dubaimove.app"
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/org.swift.swiftpm
+        - $HOME/Library/Developer/Xcode/DerivedData
+    scripts:
+      - name: Show Xcode version
+        script: xcodebuild -version
+      - name: Validate project and scheme
+        script: |
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -showBuildSettings > /tmp/dubaimove-build-settings.txt
+      - name: Simulator build gate
+        script: |
+          set -o pipefail
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build | tee /tmp/dubaimove-simulator-build.log
+    artifacts:
+      - /tmp/dubaimove-simulator-build.log
+      - /tmp/dubaimove-build-settings.txt
+
+  dubai-move-app-store:
+    name: Dubai Move App Store Archive
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.dubaimove.app
+      vars:
+        XCODE_PROJECT: "ios/DubaiMove.xcodeproj"
+        XCODE_SCHEME: "DubaiMove"
+    scripts:
+      - name: Apply signing profiles
+        script: xcode-project use-profiles
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM

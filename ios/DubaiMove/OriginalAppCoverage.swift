@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum LegacyScreen: String, CaseIterable, Hashable, Identifiable {
+enum LegacyScreen: String, CaseIterable, Identifiable {
     case welcome, createAccount, otpVerification, login, forgotPassword, moveSetup, movingDate, propertyType
     case readinessDetail, currentHome, newHome, buildingSearch, unknownBuilding, fullChecklist, taskDetail, blockedTask, timeline
     case ejariReadiness, ejariHandoff, ejariTracking, dewaMoveToReadiness, dewaAccount, premiseInformation, dewaHandoff, dewaStatus
@@ -12,210 +12,143 @@ enum LegacyScreen: String, CaseIterable, Hashable, Identifiable {
     case notificationSettings, help, supportTicket
 
     var id: String { rawValue }
-
     var title: String {
-        switch self {
-        case .welcome: "Welcome"
-        case .createAccount: "Create Account"
-        case .otpVerification: "OTP Verification"
-        case .login: "Log In"
-        case .forgotPassword: "Forgot Password"
-        case .moveSetup: "What Are You Doing?"
-        case .movingDate: "Moving Date"
-        case .propertyType: "Property Type"
-        case .readinessDetail: "Move Readiness Detail"
-        case .currentHome: "Current Home"
-        case .newHome: "New Home"
-        case .buildingSearch: "Building Search"
-        case .unknownBuilding: "Add Unknown Building"
-        case .fullChecklist: "Full Checklist"
-        case .taskDetail: "Task Detail"
-        case .blockedTask: "Blocked Task"
-        case .timeline: "Move Timeline"
-        case .ejariReadiness: "Ejari Readiness"
-        case .ejariHandoff: "Ejari Official Handoff"
-        case .ejariTracking: "Ejari Tracking"
-        case .dewaMoveToReadiness: "DEWA Move-To Readiness"
-        case .dewaAccount: "DEWA Account Information"
-        case .premiseInformation: "Premise Information"
-        case .dewaHandoff: "DEWA Official Handoff"
-        case .dewaStatus: "DEWA Status"
-        case .moveInRules: "Move-In Rules"
-        case .permitRequirements: "Permit Requirements"
-        case .buildingContact: "Building Contact"
-        case .reportIncorrectBuilding: "Report Incorrect Information"
-        case .utilitiesHub: "Utilities Hub"
-        case .internetSetup: "Internet Setup"
-        case .utilityTaskDetail: "Utility Task Detail"
-        case .serviceCategory: "Service Category"
-        case .mediaUpload: "Photo / Media Upload"
-        case .requestConfirmation: "Request Confirmation"
-        case .requestCreated: "Request Created"
-        case .requestDetail: "Service Request Detail"
-        case .quoteDetail: "Quote Detail"
-        case .messages: "Messages"
-        case .updatedQuote: "Updated Quote"
-        case .conversationDetails: "Conversation Details"
-        case .bookings: "My Bookings"
-        case .bookingDetail: "Booking Detail"
-        case .bookingTracking: "Booking Tracking"
-        case .completeJob: "Complete Job"
-        case .review: "Review"
-        case .reportProblem: "Report Problem"
-        case .movingRequirements: "Moving Requirements"
-        case .movingInventory: "Moving Inventory"
-        case .movingQuoteComparison: "Moving Quote Comparison"
-        case .oldHomeDashboard: "Old Home Dashboard"
-        case .handoverReadiness: "Handover Readiness"
-        case .startInspection: "Start Inspection"
-        case .roomInspection: "Room Inspection"
-        case .inspectionIssue: "Inspection Issue"
-        case .inspectionSummary: "Inspection Summary"
-        case .documentDetail: "Document Detail"
-        case .uploadDocument: "Upload Document"
-        case .expenseDetail: "Expense Detail"
-        case .addManualExpense: "Add Manual Expense"
-        case .refunds: "Refunds"
-        case .aiActionResult: "AI Action Result"
-        case .notificationDetail: "Notification Detail"
-        case .profile: "Profile"
-        case .familyMembers: "Family Members"
-        case .notificationSettings: "Notification Settings"
-        case .help: "Help"
-        case .supportTicket: "Support Ticket"
-        }
+        let map: [LegacyScreen:String] = [
+            .welcome:"Welcome", .createAccount:"Create Account", .otpVerification:"OTP Verification", .login:"Log In", .forgotPassword:"Forgot Password",
+            .moveSetup:"What Are You Doing?", .movingDate:"Moving Date", .propertyType:"Property Type", .readinessDetail:"Move Readiness Detail",
+            .currentHome:"Current Home", .newHome:"New Home", .buildingSearch:"Building Search", .unknownBuilding:"Add Unknown Building",
+            .fullChecklist:"Full Checklist", .taskDetail:"Task Detail", .blockedTask:"Blocked Task", .timeline:"Move Timeline",
+            .ejariReadiness:"Ejari Readiness", .ejariHandoff:"Ejari Official Handoff", .ejariTracking:"Ejari Tracking",
+            .dewaMoveToReadiness:"DEWA Move-To Readiness", .dewaAccount:"DEWA Account Information", .premiseInformation:"Premise Information", .dewaHandoff:"DEWA Official Handoff", .dewaStatus:"DEWA Status",
+            .moveInRules:"Move-In Rules", .permitRequirements:"Permit Requirements", .buildingContact:"Building Contact", .reportIncorrectBuilding:"Report Incorrect Information",
+            .utilitiesHub:"Utilities Hub", .internetSetup:"Internet Setup", .utilityTaskDetail:"Utility Task Detail", .serviceCategory:"Service Category",
+            .mediaUpload:"Photo / Media Upload", .requestConfirmation:"Request Confirmation", .requestCreated:"Request Created", .requestDetail:"Service Request Detail",
+            .quoteDetail:"Quote Detail", .messages:"Messages", .updatedQuote:"Updated Quote", .conversationDetails:"Conversation Details", .bookings:"My Bookings",
+            .bookingDetail:"Booking Detail", .bookingTracking:"Booking Tracking", .completeJob:"Complete Job", .review:"Review", .reportProblem:"Report Problem",
+            .movingRequirements:"Moving Requirements", .movingInventory:"Moving Inventory", .movingQuoteComparison:"Moving Quote Comparison", .oldHomeDashboard:"Old Home Dashboard",
+            .handoverReadiness:"Handover Readiness", .startInspection:"Start Inspection", .roomInspection:"Room Inspection", .inspectionIssue:"Inspection Issue", .inspectionSummary:"Inspection Summary",
+            .documentDetail:"Document Detail", .uploadDocument:"Upload Document", .expenseDetail:"Expense Detail", .addManualExpense:"Add Manual Expense", .refunds:"Refunds",
+            .aiActionResult:"AI Action Result", .notificationDetail:"Notification Detail", .profile:"Profile", .familyMembers:"Family Members", .notificationSettings:"Notification Settings",
+            .help:"Help", .supportTicket:"Support Ticket"
+        ]
+        return map[self] ?? rawValue
     }
 
     var icon: String {
         switch self {
-        case .welcome, .createAccount, .otpVerification, .login, .forgotPassword, .profile, .familyMembers: "person.crop.circle"
-        case .currentHome, .newHome, .buildingSearch, .unknownBuilding, .moveInRules, .permitRequirements, .buildingContact, .reportIncorrectBuilding: "building.2"
-        case .ejariReadiness, .ejariHandoff, .ejariTracking: "doc.text"
-        case .dewaMoveToReadiness, .dewaAccount, .premiseInformation, .dewaHandoff, .dewaStatus, .utilitiesHub, .internetSetup, .utilityTaskDetail: "bolt"
-        case .serviceCategory, .mediaUpload, .requestConfirmation, .requestCreated, .requestDetail, .quoteDetail, .messages, .updatedQuote, .conversationDetails, .bookings, .bookingDetail, .bookingTracking, .completeJob, .review, .reportProblem: "square.grid.2x2"
-        case .movingRequirements, .movingInventory, .movingQuoteComparison: "truck.box"
-        case .oldHomeDashboard, .handoverReadiness, .startInspection, .roomInspection, .inspectionIssue, .inspectionSummary: "camera.viewfinder"
-        case .documentDetail, .uploadDocument: "folder"
-        case .expenseDetail, .addManualExpense, .refunds: "banknote"
-        case .aiActionResult: "sparkles"
-        case .notificationDetail, .notificationSettings: "bell"
-        case .help, .supportTicket: "questionmark.circle"
-        default: "checklist"
+        case .welcome,.createAccount,.otpVerification,.login,.forgotPassword,.profile,.familyMembers: return "person.crop.circle"
+        case .currentHome,.newHome,.buildingSearch,.unknownBuilding,.moveInRules,.permitRequirements,.buildingContact,.reportIncorrectBuilding: return "building.2"
+        case .ejariReadiness,.ejariHandoff,.ejariTracking: return "doc.text"
+        case .dewaMoveToReadiness,.dewaAccount,.premiseInformation,.dewaHandoff,.dewaStatus,.utilitiesHub,.internetSetup,.utilityTaskDetail: return "bolt"
+        case .movingRequirements,.movingInventory,.movingQuoteComparison: return "truck.box"
+        case .oldHomeDashboard,.handoverReadiness,.startInspection,.roomInspection,.inspectionIssue,.inspectionSummary: return "camera.viewfinder"
+        case .documentDetail,.uploadDocument: return "folder"
+        case .expenseDetail,.addManualExpense,.refunds: return "banknote"
+        case .aiActionResult: return "sparkles"
+        case .notificationDetail,.notificationSettings: return "bell"
+        case .help,.supportTicket: return "questionmark.circle"
+        default: return "checklist"
         }
     }
 
-    var rows: [String] {
+    var workflow: [String] {
         switch self {
-        case .welcome: ["English / Arabic language choice", "Get Started", "Log In"]
-        case .createAccount: ["Full name", "Email", "Mobile", "Password", "Required consent"]
-        case .otpVerification: ["6-digit verification code", "Resend code", "Verify account"]
-        case .login: ["Email or mobile", "Password", "Log In", "Forgot Password"]
-        case .forgotPassword: ["Identity verification", "Reset password", "Return to login"]
-        case .moveSetup: ["Moving within Dubai", "Moving to Dubai", "Leaving Dubai", "Home service only", "Manage existing property"]
-        case .movingDate: ["Choose move date", "I am not sure yet", "Flexible target date"]
-        case .propertyType: ["Apartment / Villa / Townhouse", "Bedrooms", "Occupancy / household"]
-        case .readinessDetail: ["Contract", "Government & utilities", "Building", "Services", "Old-home handover", "Money"]
-        case .currentHome: ["Address", "Building", "Unit", "Current tenancy status"]
-        case .newHome: ["Address", "Building", "Unit", "Move-in date"]
-        case .buildingSearch: ["Search building or community", "Recent choices", "Can't find my building"]
-        case .unknownBuilding: ["Building name", "Community", "Address details", "Submit for verification"]
-        case .fullChecklist: ["All tasks", "Blocked", "In progress", "Completed", "Filter by category"]
-        case .taskDetail: ["Why this task matters", "Deadline", "Requirements", "Documents", "Start / Complete"]
-        case .blockedTask: ["Blocking dependency", "Why it is blocked", "Go to dependency", "Return after completion"]
-        case .timeline: ["Move events", "Deadlines", "Provider events", "Official handoff events"]
-        case .ejariReadiness: ["Tenancy information", "Required documents", "Landlord approval state", "Continue when ready"]
-        case .ejariHandoff: ["Official channel", "What happens outside Dubai Move", "Return and update status"]
-        case .ejariTracking: ["Preparing", "External in progress", "Waiting landlord", "Completed / Problem"]
-        case .dewaMoveToReadiness: ["Existing DEWA account", "Move-out date", "9-digit premise number", "Valid Ejari", "Move-in date"]
-        case .dewaAccount: ["Contract account number", "Account holder", "Save securely"]
-        case .premiseInformation: ["9-digit premise number", "New property", "Validate before handoff"]
-        case .dewaHandoff: ["Official DEWA channel", "Review data before leaving app", "Return and track"]
-        case .dewaStatus: ["Submitted", "Payment pending", "Scheduled", "Activated", "Problem"]
-        case .moveInRules: ["Move permit", "Lift reservation", "Moving hours", "Mover insurance", "Loading / parking"]
-        case .permitRequirements: ["Required building documents", "Provider documents", "Readiness", "Submit / mark complete"]
-        case .buildingContact: ["Management phone", "Email", "Portal", "Office details"]
-        case .reportIncorrectBuilding: ["Choose incorrect field", "Describe correction", "Attach evidence", "Submit for review"]
-        case .utilitiesHub: ["DEWA", "Internet", "Cooling", "Gas if applicable", "Utility status"]
-        case .internetSetup: ["Transfer", "New connection", "Cancel", "Provider handoff"]
-        case .utilityTaskDetail: ["Current status", "Requirements", "Official/provider action", "Mark progress"]
-        case .serviceCategory: ["Choose sub-service", "See scope", "Start request"]
-        case .mediaUpload: ["Photos", "Video", "Files", "Remove before submission"]
-        case .requestConfirmation: ["Scope", "Addresses", "Date", "Media", "Submit request"]
-        case .requestCreated: ["Matching providers", "Request status", "Notifications", "View request"]
-        case .requestDetail: ["Request status", "Quotes", "Messages", "Attachments", "Cancel if eligible"]
-        case .quoteDetail: ["Provider fee", "Official fee if applicable", "Scope", "Exclusions", "Validity", "Accept / Message / Decline"]
-        case .messages: ["Active conversations", "Unread count", "Booking / request context"]
-        case .updatedQuote: ["Old price", "New price", "Revision reason", "Accept latest / Reject"]
-        case .conversationDetails: ["Provider", "Linked request", "Linked booking", "Report / Block"]
-        case .bookings: ["Upcoming", "Today", "Completed", "Cancelled"]
-        case .bookingDetail: ["Provider", "Date and time", "Addresses", "Scope", "Message / Track"]
-        case .bookingTracking: ["Confirmed", "On the way", "Arrived", "In progress", "Provider completed"]
-        case .completeJob: ["Confirm complete", "Something is wrong", "Add evidence"]
-        case .review: ["Overall rating", "Punctuality", "Price accuracy", "Service quality", "Comment"]
-        case .reportProblem: ["Problem type", "Description", "Photos / files", "Submit complaint"]
-        case .movingRequirements: ["Packing", "Disassembly", "Fragile items", "Special items", "Access constraints"]
-        case .movingInventory: ["Rooms", "Furniture", "Boxes", "Special items", "AI video inventory"]
-        case .movingQuoteComparison: ["Price", "Scope", "Crew", "Truck", "Insurance", "Hidden-cost risk"]
-        case .oldHomeDashboard: ["Inspection", "Cleaning", "Utilities", "Keys", "Deposit", "Handover"]
-        case .handoverReadiness: ["Inspection", "Final bills", "Cleaning evidence", "Keys", "Deposit status"]
-        case .startInspection: ["Living room", "Kitchen", "Bedrooms", "Bathrooms", "Balcony"]
-        case .roomInspection: ["Take photos", "Record issue", "Add note", "Mark room complete"]
-        case .inspectionIssue: ["Issue type", "Severity", "Photo / video", "User confirmation"]
-        case .inspectionSummary: ["Room status", "Issues", "Evidence count", "Generate condition report"]
-        case .documentDetail: ["File metadata", "Linked tasks", "Sharing scope", "Replace", "Delete"]
-        case .uploadDocument: ["Document type", "File", "Expiry date if relevant", "Upload privately"]
-        case .expenseDetail: ["Category", "Expected amount", "Actual amount", "Provider / source", "Edit"]
-        case .addManualExpense: ["Expense type", "Amount", "Date", "Note", "Save"]
-        case .refunds: ["Security deposit", "DEWA refund", "Cooling refund", "Expected / received", "Update status"]
-        case .aiActionResult: ["Answer", "Why", "Suggested next action", "Open linked screen"]
-        case .notificationDetail: ["Why you received this", "Linked move item", "Open task"]
-        case .profile: ["Personal details", "Language", "Family", "Security", "My properties"]
-        case .familyMembers: ["Members", "Permissions", "Invite member", "Remove access"]
-        case .notificationSettings: ["Push", "Email", "Transactional fallback", "Marketing consent kept separate"]
-        case .help: ["FAQs", "Move guides", "Contact support", "Report a problem"]
-        case .supportTicket: ["Category", "Message", "Attachment", "Submit ticket"]
+        case .welcome: return ["Language choice", "Get Started", "Log In"]
+        case .createAccount: return ["Name", "Email", "Mobile", "Password", "Consent"]
+        case .otpVerification: return ["Verification code", "Resend", "Verify"]
+        case .login: return ["Email / mobile", "Password", "Forgot password"]
+        case .forgotPassword: return ["Verify identity", "Reset password"]
+        case .moveSetup: return ["Within Dubai", "To Dubai", "Leaving Dubai", "Service only", "Manage property"]
+        case .movingDate: return ["Exact date", "Flexible target date", "Not sure yet"]
+        case .propertyType: return ["Apartment / Villa / Townhouse", "Bedrooms", "Household"]
+        case .readinessDetail: return ["Contract", "Government & utilities", "Building", "Services", "Handover", "Money"]
+        case .currentHome,.newHome: return ["Address", "Building", "Unit", "Map location"]
+        case .buildingSearch: return ["Building autocomplete", "Community", "Unknown building option"]
+        case .unknownBuilding: return ["Building name", "Community", "Address", "Admin verification queue"]
+        case .fullChecklist: return ["All", "Blocked", "In progress", "Completed", "Category filters"]
+        case .taskDetail: return ["Why", "Deadline", "Requirements", "Documents", "Start / Complete"]
+        case .blockedTask: return ["Blocking dependency", "Reason", "Go to dependency"]
+        case .timeline: return ["Task history", "Deadlines", "Provider events", "Official handoffs"]
+        case .ejariReadiness: return ["Tenancy details", "Documents", "Approval status", "Readiness"]
+        case .ejariHandoff: return ["Official channel", "What happens outside app", "Return and track"]
+        case .ejariTracking: return ["Preparing", "External in progress", "Waiting landlord", "Completed / Problem"]
+        case .dewaMoveToReadiness: return ["Existing account", "Move-out date", "9-digit premise", "Valid Ejari", "Move-in date"]
+        case .dewaAccount: return ["Contract account number", "Account holder"]
+        case .premiseInformation: return ["9-digit premise number", "New property"]
+        case .dewaHandoff: return ["Review readiness", "Official DEWA handoff", "Return and track"]
+        case .dewaStatus: return ["Submitted", "Payment pending", "Scheduled", "Activated", "Problem"]
+        case .moveInRules: return ["Permit", "Lift", "Hours", "Insurance", "Loading / parking"]
+        case .permitRequirements: return ["Required docs", "Provider docs", "Readiness"]
+        case .buildingContact: return ["Phone", "Email", "Portal", "Office"]
+        case .reportIncorrectBuilding: return ["Incorrect field", "Correction", "Evidence", "Submit review"]
+        case .utilitiesHub: return ["DEWA", "Internet", "Cooling", "Gas if applicable"]
+        case .internetSetup: return ["Transfer", "New connection", "Cancel"]
+        case .utilityTaskDetail: return ["Status", "Requirements", "Official / provider action"]
+        case .serviceCategory: return ["Sub-services", "Scope", "Start request"]
+        case .mediaUpload: return ["Photos", "Video", "Files", "Remove before submit"]
+        case .requestConfirmation: return ["Scope", "Addresses", "Date", "Media", "Submit"]
+        case .requestCreated: return ["Matching providers", "Status", "Notifications"]
+        case .requestDetail: return ["Status", "Quotes", "Messages", "Attachments"]
+        case .quoteDetail: return ["Provider fee", "Official fee", "Scope", "Exclusions", "Validity", "Accept / Message / Decline"]
+        case .messages: return ["Conversations", "Unread", "Request / booking context"]
+        case .updatedQuote: return ["Old price", "New price", "Reason", "Accept latest / Reject"]
+        case .conversationDetails: return ["Provider", "Request", "Booking", "Report / Block"]
+        case .bookings: return ["Upcoming", "Today", "Completed", "Cancelled"]
+        case .bookingDetail: return ["Provider", "Date", "Addresses", "Scope", "Message / Track"]
+        case .bookingTracking: return ["Confirmed", "On the way", "Arrived", "In progress", "Provider completed"]
+        case .completeJob: return ["Confirm complete", "Report issue", "Evidence"]
+        case .review: return ["Overall", "Punctuality", "Price accuracy", "Quality", "Comment"]
+        case .reportProblem: return ["Type", "Description", "Evidence", "Complaint"]
+        case .movingRequirements: return ["Packing", "Disassembly", "Fragile", "Special items", "Access"]
+        case .movingInventory: return ["Rooms", "Furniture", "Boxes", "Special items", "AI video inventory"]
+        case .movingQuoteComparison: return ["Price", "Scope", "Crew", "Truck", "Insurance", "Hidden-cost risk"]
+        case .oldHomeDashboard: return ["Inspection", "Cleaning", "Utilities", "Keys", "Deposit", "Handover"]
+        case .handoverReadiness: return ["Inspection", "Final bills", "Cleaning evidence", "Keys", "Deposit"]
+        case .startInspection: return ["Living room", "Kitchen", "Bedrooms", "Bathrooms", "Balcony"]
+        case .roomInspection: return ["Photos", "Issue", "Note", "Complete room"]
+        case .inspectionIssue: return ["Issue type", "Severity", "Media", "User confirmation"]
+        case .inspectionSummary: return ["Rooms", "Issues", "Evidence", "Generate report"]
+        case .documentDetail: return ["Metadata", "Linked tasks", "Sharing scope", "Replace / Delete"]
+        case .uploadDocument: return ["Type", "File", "Expiry", "Private upload"]
+        case .expenseDetail: return ["Category", "Expected", "Actual", "Source", "Edit"]
+        case .addManualExpense: return ["Type", "Amount", "Date", "Note"]
+        case .refunds: return ["Security deposit", "DEWA", "Cooling", "Expected / received"]
+        case .aiActionResult: return ["Answer", "Reason", "Suggested next action", "Deep link"]
+        case .notificationDetail: return ["Reason", "Linked entity", "Open task"]
+        case .profile: return ["Personal details", "Language", "Family", "Security", "Properties"]
+        case .familyMembers: return ["Members", "Permissions", "Invite", "Remove access"]
+        case .notificationSettings: return ["Push", "Email", "Transactional fallback", "Marketing separate"]
+        case .help: return ["FAQ", "Move guides", "Contact support", "Report problem"]
+        case .supportTicket: return ["Category", "Message", "Attachment", "Submit"]
         }
     }
 }
 
 struct OriginalAppCoverageView: View {
     let screen: LegacyScreen
-    @State private var text = ""
-    @State private var enabled = true
+    @State private var field = ""
+    @State private var completed = false
 
     var body: some View {
         Form {
             Section {
-                HStack(spacing: 14) {
-                    Image(systemName: screen.icon).font(.title2).foregroundStyle(DMTheme.green)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(screen.title).font(.title2.bold())
-                        Text("Original Dubai Move workflow restored in the iOS architecture").font(.caption).foregroundStyle(.secondary)
-                    }
-                }.padding(.vertical, 8)
+                Label(screen.title, systemImage: screen.icon).font(.title2.bold()).foregroundStyle(DMTheme.green)
+                Text("Restored from the original Dubai Move U-001…U-094 workflow contract.").font(.footnote).foregroundStyle(.secondary)
             }
             Section("Workflow") {
-                ForEach(screen.rows, id: \.self) { row in
-                    HStack {
-                        Image(systemName: "chevron.right.circle.fill").foregroundStyle(DMTheme.green)
-                        Text(row)
-                    }
-                }
+                ForEach(screen.workflow, id: \.self) { Label($0, systemImage: "chevron.right.circle.fill") }
             }
-            if [.createAccount, .login, .forgotPassword, .unknownBuilding, .reportIncorrectBuilding, .supportTicket, .addManualExpense].contains(screen) {
-                Section("Input") { TextField("Enter details", text: $text) }
-            }
-            if [.notificationSettings, .familyMembers].contains(screen) {
-                Section("Settings") { Toggle("Enabled", isOn: $enabled) }
+            if [.createAccount,.login,.forgotPassword,.unknownBuilding,.reportIncorrectBuilding,.addManualExpense,.supportTicket].contains(screen) {
+                Section("Input") { TextField("Enter details", text: $field) }
             }
             Section {
-                Button(primaryAction) { }
+                Button(completed ? "Saved" : primaryAction) { completed = true }
                     .frame(maxWidth: .infinity)
                     .buttonStyle(.borderedProminent)
                     .tint(DMTheme.green)
             }
             Section {
-                Text("Active controls are intentionally wired as interaction points. Production API/storage actions are attached in the integration layer; legal or government completion is never simulated.")
+                Text("Government or regulated completion is never simulated. Production integrations execute or hand off real actions; provider access stays scoped to the job.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
         }
@@ -225,49 +158,33 @@ struct OriginalAppCoverageView: View {
 
     private var primaryAction: String {
         switch screen {
-        case .welcome: "Get Started"
-        case .createAccount: "Create Account"
-        case .otpVerification: "Verify"
-        case .login: "Log In"
-        case .forgotPassword: "Reset Password"
-        case .moveSetup, .movingDate, .propertyType: "Continue"
-        case .currentHome, .newHome, .dewaAccount, .premiseInformation, .notificationSettings: "Save"
-        case .buildingSearch: "Select Building"
-        case .unknownBuilding: "Submit Building"
-        case .fullChecklist, .timeline, .messages, .bookings: "Open Selected Item"
-        case .blockedTask: "Go to Dependency"
-        case .ejariHandoff, .dewaHandoff: "Continue to Official Channel"
-        case .requestConfirmation: "Submit Request"
-        case .requestCreated, .requestDetail: "View Request"
-        case .quoteDetail, .updatedQuote: "Review Latest Quote"
-        case .completeJob: "Confirm Completion"
-        case .review: "Submit Review"
-        case .reportProblem: "Submit Complaint"
-        case .inspectionSummary: "Generate Report"
-        case .uploadDocument: "Upload"
-        case .addManualExpense: "Save Expense"
-        case .supportTicket: "Submit Ticket"
-        default: "Continue"
+        case .createAccount: return "Create Account"
+        case .otpVerification: return "Verify"
+        case .login: return "Log In"
+        case .forgotPassword: return "Reset Password"
+        case .buildingSearch: return "Select Building"
+        case .unknownBuilding: return "Submit Building"
+        case .blockedTask: return "Go to Dependency"
+        case .ejariHandoff,.dewaHandoff: return "Continue to Official Channel"
+        case .requestConfirmation: return "Submit Request"
+        case .review: return "Submit Review"
+        case .reportProblem: return "Submit Complaint"
+        case .inspectionSummary: return "Generate Report"
+        case .uploadDocument: return "Upload"
+        case .addManualExpense: return "Save Expense"
+        case .supportTicket: return "Submit Ticket"
+        default: return "Continue"
         }
     }
 }
 
 struct OriginalScreenIndexView: View {
     var body: some View {
-        List {
-            Section {
-                Text("Original User App coverage")
-                    .font(.headline)
-                Text("Restored screens that were separate in the first U-001…U-094 architecture and were previously merged or missing in the SwiftUI rebuild.")
-                    .font(.footnote).foregroundStyle(.secondary)
-            }
-            ForEach(LegacyScreen.allCases) { screen in
-                NavigationLink(value: AppRoute.legacy(screen)) {
-                    Label(screen.title, systemImage: screen.icon)
-                }
+        List(LegacyScreen.allCases) { screen in
+            NavigationLink(destination: OriginalAppCoverageView(screen: screen)) {
+                Label(screen.title, systemImage: screen.icon)
             }
         }
-        .navigationTitle("Original App Screens")
-        .navigationDestination(for: AppRoute.self) { FeatureRouter(route: $0) }
+        .navigationTitle("Original App Coverage")
     }
 }

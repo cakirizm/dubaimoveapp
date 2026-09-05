@@ -70,16 +70,16 @@ extension DubaiMoveAPI {
     }
 
     static func officialServices() async throws -> [OfficialServiceDTO] {
-        try await APIClient.shared.request("official-services")
+        try await APIClient.shared.request("utilities/services")
     }
 
     static func createOfficialHandoff(moveId: String, serviceId: String) async throws -> OfficialHandoffDTO {
         struct Body: Encodable { let moveId: String; let serviceId: String }
-        return try await APIClient.shared.request("official-handoffs", method: "POST", body: Body(moveId: moveId, serviceId: serviceId))
+        return try await APIClient.shared.request("government/handoffs", method: "POST", body: Body(moveId: moveId, serviceId: serviceId))
     }
 
     static func markOfficialHandoffOpened(_ handoffId: String) async throws -> OfficialHandoffDTO {
-        try await APIClient.shared.request("official-handoffs/\(handoffId)/open", method: "POST")
+        try await APIClient.shared.request("government/handoffs/\(handoffId)/open", method: "POST")
     }
 }
 

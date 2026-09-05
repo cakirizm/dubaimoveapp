@@ -59,17 +59,37 @@ workflows:
       - name: Prepare TestFlight app icon
         script: |
           base64 -D -i ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 -o ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          file ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Apply signing profiles
-        script: xcode-project use-profiles
+        script: |
+          xcode-project use-profiles
+          echo "=== Installed signing identities ==="
+          security find-identity -v -p codesigning || true
+          echo "=== Provisioning profile files ==="
+          find "$HOME/Library/MobileDevice/Provisioning Profiles" -maxdepth 1 -type f -print 2>/dev/null || true
+          echo "=== Effective signing settings ==="
+          xcodebuild -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME" -configuration Release -showBuildSettings | grep -E "PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE|ENTITLEMENTS" || true
       - name: Set TestFlight build number
         script: |
           sed -i '' -E "s/CURRENT_PROJECT_VERSION = [0-9]+;/CURRENT_PROJECT_VERSION = ${BUILD_NUMBER};/g" ios/DubaiMove.xcodeproj/project.pbxproj
       - name: Build signed IPA
         script: |
+          set +e
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME" \
             --archive-xcargs "DUBAI_MOVE_API_BASE_URL=${DUBAI_MOVE_API_BASE_URL:-}"
+          STATUS=$?
+          if [ "$STATUS" -ne 0 ]; then
+            echo ""
+            echo "========== DUBAI MOVE ARCHIVE DIAGNOSTICS =========="
+            find /tmp/xcodebuild_logs -type f -name '*.log' -print 2>/dev/null | while read LOG; do
+              echo "--- $LOG ---"
+              grep -nEi "error:|provisioning profile|codesign|code sign|entitlement|appicon|asset catalog|requires a provisioning profile|doesn't include|does not include|certificate" "$LOG" | tail -n 250 || true
+            done
+            echo "===================================================="
+          fi
+          exit "$STATUS"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log

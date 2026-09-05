@@ -5,6 +5,7 @@ typealias MapScale = MapScaleView
 
 @main
 struct DubaiMoveApp: App {
+    @UIApplicationDelegateAdaptor(DubaiMoveAppDelegate.self) private var appDelegate
     @StateObject private var appState = AppState()
     @StateObject private var session = SessionStore()
     @StateObject private var connectedData = ConnectedDataStore()
@@ -15,6 +16,11 @@ struct DubaiMoveApp: App {
                 .environmentObject(appState)
                 .environmentObject(session)
                 .environmentObject(connectedData)
+                .task {
+                    if APIConfiguration.isConnectedMode {
+                        await PushRegistration.request()
+                    }
+                }
         }
     }
 }

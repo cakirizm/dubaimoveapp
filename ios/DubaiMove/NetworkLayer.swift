@@ -14,6 +14,7 @@ struct APIConfiguration {
 
 enum APIError: LocalizedError {
     case notConfigured
+    case invalidURL
     case invalidResponse
     case unauthorized
     case server(status: Int, message: String?)
@@ -23,6 +24,7 @@ enum APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConfigured: return "Backend URL is not configured."
+        case .invalidURL: return "The API request URL is invalid."
         case .invalidResponse: return "Invalid server response."
         case .unauthorized: return "Your session has expired. Please sign in again."
         case .server(let status, let message): return message ?? "Server request failed (\(status))."
@@ -163,15 +165,11 @@ actor TokenStore {
 actor APIClient {
     static let shared = APIClient()
     private let session: URLSession
-    private let decoder: JSONDecoder
-    private let encoder: JSONEncoder
+    private let decoder = JSONDecoder()
+    private let encoder = JSONEncoder()
     private var refreshing = false
 
-    init(session: URLSession = .shared) {
-        self.session = session
-        decoder = JSONDecoder()
-        encoder = JSONEncoder()
-    }
+    init(session: URLSession = .shared) { self.session = session }
 
     func request<T: Decodable>(
         _ path: String,
@@ -181,7 +179,7 @@ actor APIClient {
         retryOn401: Bool = true
     ) async throws -> T {
         guard let base = APIConfiguration.baseURL else { throw APIError.notConfigured }
-        let url = base.appendingPathComponent(path.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
+        guard let url = URL(string: path, relativeTo: base.appendingPathComponent("/"))?.absoluteURL else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -189,7 +187,7 @@ actor APIClient {
         if authenticated, let access = await TokenStore.shared.load()?.accessToken {
             request.setValue("Bearer \(access)", forHTTPHeaderField: "Authorization")
         }
-        if let body { request.httpBody = try encodeAny(body) }
+        if let body { request.httpBody = try encoder.encode(AnyEncodable(body)) }
 
         do {
             let (data, response) = try await session.data(for: request)
@@ -211,6 +209,16 @@ actor APIClient {
         catch { throw APIError.transport(error) }
     }
 
+    func upload(to signedURL: String, data: Data, mimeType: String, headers: [String: String] = [:]) async throws {
+        guard let url = URL(string: signedURL) else { throw APIError.invalidURL }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(mimeType, forHTTPHeaderField: "Content-Type")
+        headers.forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }
+        let (_, response) = try await session.upload(for: request, from: data)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else { throw APIError.invalidResponse }
+    }
+
     private func refreshSession() async throws {
         guard !refreshing else { throw APIError.unauthorized }
         guard let refresh = await TokenStore.shared.load()?.refreshToken else { throw APIError.unauthorized }
@@ -221,15 +229,11 @@ actor APIClient {
         let result: RefreshResponse = try await request("auth/refresh", method: "POST", body: RefreshBody(refreshToken: refresh), authenticated: false, retryOn401: false)
         try await TokenStore.shared.save(.init(accessToken: result.accessToken, refreshToken: result.refreshToken))
     }
-
-    private func encodeAny(_ value: Encodable) throws -> Data {
-        try encoder.encode(AnyEncodable(value))
-    }
 }
 
 private struct AnyEncodable: Encodable {
     private let encodeClosure: (Encoder) throws -> Void
-    init(_ wrapped: Encodable) { self.encodeClosure = wrapped.encode }
+    init(_ wrapped: Encodable) { encodeClosure = wrapped.encode }
     func encode(to encoder: Encoder) throws { try encodeClosure(encoder) }
 }
 
@@ -238,9 +242,11 @@ final class SessionStore: ObservableObject {
     @Published private(set) var user: UserDTO?
     @Published private(set) var isAuthenticated = false
     @Published private(set) var isLoading = false
+    @Published private(set) var didAttemptRestore = false
     @Published var errorMessage: String?
 
     func restore() async {
+        defer { didAttemptRestore = true }
         guard APIConfiguration.isConnectedMode else { return }
         guard await TokenStore.shared.load() != nil else { return }
         isLoading = true
@@ -280,10 +286,37 @@ final class SessionStore: ObservableObject {
     }
 
     func logout() async {
-        _ = try? await APIClient.shared.request("auth/logout", method: "POST") as EmptyResponse
+        let _: EmptyResponse? = try? await APIClient.shared.request("auth/logout", method: "POST")
         await TokenStore.shared.clear()
         user = nil
         isAuthenticated = false
+    }
+}
+
+@MainActor
+final class ConnectedDataStore: ObservableObject {
+    @Published var moves: [MoveDTO] = []
+    @Published var requests: [ServiceRequestDTO] = []
+    @Published var bookings: [BookingDTO] = []
+    @Published var conversations: [ConversationDTO] = []
+    @Published var documents: [DocumentDTO] = []
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    @Published var lastRefresh: Date?
+
+    func refresh() async {
+        guard APIConfiguration.isConnectedMode else { return }
+        isLoading = true; errorMessage = nil
+        defer { isLoading = false }
+        do {
+            async let liveMoves = DubaiMoveAPI.moves()
+            async let liveRequests = DubaiMoveAPI.serviceRequests()
+            async let liveBookings = DubaiMoveAPI.bookings()
+            async let liveConversations = DubaiMoveAPI.conversations()
+            async let liveDocuments = DubaiMoveAPI.documents()
+            (moves, requests, bookings, conversations, documents) = try await (liveMoves, liveRequests, liveBookings, liveConversations, liveDocuments)
+            lastRefresh = Date()
+        } catch { errorMessage = error.localizedDescription }
     }
 }
 
@@ -295,9 +328,7 @@ enum DubaiMoveAPI {
     }
     static func serviceRequests() async throws -> [ServiceRequestDTO] { try await APIClient.shared.request("service-requests") }
     static func quotes(requestId: String) async throws -> [QuoteDTO] { try await APIClient.shared.request("service-requests/\(requestId)/quotes") }
-    static func acceptQuote(_ quoteId: String) async throws -> BookingDTO {
-        try await APIClient.shared.request("quotes/\(quoteId)/accept", method: "POST")
-    }
+    static func acceptQuote(_ quoteId: String) async throws -> BookingDTO { try await APIClient.shared.request("quotes/\(quoteId)/accept", method: "POST") }
     static func bookings() async throws -> [BookingDTO] { try await APIClient.shared.request("bookings") }
     static func conversations() async throws -> [ConversationDTO] { try await APIClient.shared.request("conversations") }
     static func messages(conversationId: String) async throws -> [MessageDTO] { try await APIClient.shared.request("conversations/\(conversationId)/messages") }
@@ -310,9 +341,12 @@ enum DubaiMoveAPI {
         struct Body: Encodable { let type: String; let filename: String; let mimeType: String }
         return try await APIClient.shared.request("documents/upload-intent", method: "POST", body: Body(type: type, filename: filename, mimeType: mimeType))
     }
-    static func confirmDocumentUpload(documentId: String) async throws -> DocumentDTO {
-        try await APIClient.shared.request("documents/\(documentId)/uploaded", method: "POST")
+    static func uploadDocument(data: Data, type: String, filename: String, mimeType: String) async throws -> DocumentDTO {
+        let intent = try await createDocumentUpload(type: type, filename: filename, mimeType: mimeType)
+        try await APIClient.shared.upload(to: intent.uploadURL, data: data, mimeType: mimeType, headers: intent.headers ?? [:])
+        return try await confirmDocumentUpload(documentId: intent.documentId)
     }
+    static func confirmDocumentUpload(documentId: String) async throws -> DocumentDTO { try await APIClient.shared.request("documents/\(documentId)/uploaded", method: "POST") }
     static func registerPushToken(_ token: String, platform: String = "ios") async throws {
         struct Body: Encodable { let token: String; let platform: String }
         let _: EmptyResponse = try await APIClient.shared.request("notifications/push-tokens", method: "POST", body: Body(token: token, platform: platform))

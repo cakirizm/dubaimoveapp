@@ -15,9 +15,12 @@ workflows:
         - $HOME/Library/Caches/org.swift.swiftpm
         - $HOME/Library/Developer/Xcode/DerivedData
     scripts:
-      - name: Prepare app icon
+      - name: Generate Dubai Move brand assets
         script: |
-          base64 -D -i ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 -o ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          swift scripts/generate_brand_assets.swift
+          file ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          file ios/DubaiMove/Assets.xcassets/BrandLogo.imageset/BrandLogo.png
+          file ios/DubaiMove/Assets.xcassets/BrandWelcome.imageset/BrandWelcome.png
       - name: Show Xcode version
         script: xcodebuild -version
       - name: Validate project and scheme
@@ -56,10 +59,12 @@ workflows:
         XCODE_SCHEME: "DubaiMove"
         BUNDLE_ID: "com.dubaimove.app"
     scripts:
-      - name: Prepare TestFlight app icon
+      - name: Generate Dubai Move brand assets
         script: |
-          base64 -D -i ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 -o ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          swift scripts/generate_brand_assets.swift
           file ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          file ios/DubaiMove/Assets.xcassets/BrandLogo.imageset/BrandLogo.png
+          file ios/DubaiMove/Assets.xcassets/BrandWelcome.imageset/BrandWelcome.png
       - name: Apply signing profiles
         script: |
           xcode-project use-profiles
@@ -114,9 +119,9 @@ workflows:
         XCODE_PROJECT: "ios/DubaiMove.xcodeproj"
         XCODE_SCHEME: "DubaiMove"
     scripts:
-      - name: Prepare app icon
+      - name: Generate Dubai Move brand assets
         script: |
-          base64 -D -i ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 -o ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          swift scripts/generate_brand_assets.swift
       - name: Apply signing profiles
         script: xcode-project use-profiles
       - name: Build IPA

@@ -148,7 +148,6 @@ struct LiveMovesView: View {
 
 struct LiveRequestsView: View {
     @EnvironmentObject private var live: ConnectedDataStore
-    @State private var selected: ServiceRequestDTO?
     var body: some View {
         List(live.requests) { request in
             NavigationLink {
@@ -176,7 +175,7 @@ struct LiveQuotesView: View {
             if let error { Text(error).foregroundStyle(.red) }
             ForEach(quotes) { quote in
                 Section(quote.providerName ?? "Provider") {
-                    LabeledContent("Price", value: "\(quote.currency ?? "AED") \(quote.amount ?? 0, specifier: "%.0f")")
+                    LabeledContent("Price", value: "\(quote.currency ?? "AED") \(String(format: "%.0f", quote.amount ?? 0))")
                     LabeledContent("Status", value: quote.status ?? "Unknown")
                     LabeledContent("Version", value: "\(quote.version ?? 1)")
                     Button("Accept latest quote") {

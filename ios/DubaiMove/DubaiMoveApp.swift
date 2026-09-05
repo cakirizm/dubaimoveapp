@@ -6,18 +6,15 @@ typealias MapScale = MapScaleView
 @main
 struct DubaiMoveApp: App {
     @StateObject private var appState = AppState()
-    @AppStorage("dubaimove.onboarding.completed") private var onboardingCompleted = false
+    @StateObject private var session = SessionStore()
+    @StateObject private var connectedData = ConnectedDataStore()
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if onboardingCompleted {
-                    RootTabView()
-                } else {
-                    OnboardingView(completed: $onboardingCompleted)
-                }
-            }
-            .environmentObject(appState)
+            ConnectedRootView()
+                .environmentObject(appState)
+                .environmentObject(session)
+                .environmentObject(connectedData)
         }
     }
 }

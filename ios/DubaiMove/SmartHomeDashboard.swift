@@ -319,7 +319,8 @@ struct SmartHomeDashboardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(13)
-            .frame(width: width, minHeight: 92, alignment: .leading)
+            .frame(width: width, alignment: .leading)
+            .frame(minHeight: 92, alignment: .leading)
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.black.opacity(0.04), lineWidth: 1))

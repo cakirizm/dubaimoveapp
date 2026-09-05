@@ -3,6 +3,10 @@ import MapKit
 
 typealias MapScale = MapScaleView
 
+extension Color {
+    static var tertiary: Color { Color(uiColor: .tertiaryLabel) }
+}
+
 @main
 struct DubaiMoveApp: App {
     @UIApplicationDelegateAdaptor(DubaiMoveAppDelegate.self) private var appDelegate

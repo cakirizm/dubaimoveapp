@@ -51,15 +51,17 @@ struct V4Provider: Identifiable, Hashable {
 }
 
 enum V4MarketplaceData {
+    static let pestPhoto = "https://nearpestcontrol.in/pest-control-technician-spraying-home-exterior.png"
+
     static let categories: [V4Category] = [
         .init(name: "Cleaning", subtitle: "Homes, apartments, villas", imageURL: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=85", chips: ["Regular", "Deep clean", "Move-out", "Eco-friendly"]),
         .init(name: "Moving", subtitle: "Home & office moving", imageURL: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1200&q=85", chips: ["Apartment", "Villa", "Packing", "Boxes"]),
         .init(name: "Painting", subtitle: "Interior & exterior", imageURL: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=1200&q=85", chips: ["Touch-up", "Single room", "Full repaint", "Move-out"]),
         .init(name: "Maintenance", subtitle: "General repairs & handyman", imageURL: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=1200&q=85", chips: ["Handyman", "AC", "Mounting", "Repairs"]),
         .init(name: "Storage", subtitle: "Short & long term", imageURL: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=85", chips: ["Pickup", "Monthly", "Short-term", "Long-term"]),
-        .init(name: "Electrical & Plumbing", subtitle: "Home technical services", imageURL: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=85", chips: ["Electrical", "Plumbing", "Leaks", "Fixtures"]),
+        .init(name: "Electrical & Plumbing", subtitle: "Certified professionals", imageURL: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=85", chips: ["Electrical", "Plumbing", "Leaks", "Fixtures"]),
         .init(name: "Appliance Repair", subtitle: "AC, fridge, washer & more", imageURL: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=1200&q=85", chips: ["Washer", "Dryer", "Fridge", "Dishwasher"]),
-        .init(name: "Pest Control", subtitle: "Safe home treatments", imageURL: "https://images.unsplash.com/photo-1581579185169-7d6a6f78ec82?auto=format&fit=crop&w=1200&q=85", chips: ["Apartment", "Villa", "Treatment", "Follow-up"])
+        .init(name: "Pest Control", subtitle: "Safe & effective solutions", imageURL: pestPhoto, chips: ["Apartment", "Villa", "Treatment", "Follow-up"])
     ]
 
     static let providers: [V4Provider] = [
@@ -71,7 +73,7 @@ enum V4MarketplaceData {
         .init(name: "BoxSafe Storage", category: "Storage", rating: 4.6, reviews: 121, location: "Al Quoz", price: "From AED 199/month", nextSlot: "Pickup tomorrow", imageURL: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=90", about: "Short- and long-term storage with optional pickup.", tags: ["Pickup", "Short-term", "Long-term"], slots: ["Tomorrow · AM", "Tomorrow · PM", "Sunday · AM"]),
         .init(name: "HomeFlow Technical", category: "Electrical & Plumbing", rating: 4.7, reviews: 166, location: "Dubai", price: "From AED 150", nextSlot: "Today · 19:00", imageURL: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=90", about: "Common residential electrical and plumbing visits with scope confirmed before attendance.", tags: ["Electrical", "Plumbing", "Home visits"], slots: ["Today · 19:00", "Tomorrow · 09:30", "Tomorrow · 15:00"]),
         .init(name: "ApplianceCare Dubai", category: "Appliance Repair", rating: 4.5, reviews: 132, location: "Dubai", price: "From AED 130", nextSlot: "Tomorrow · 11:00", imageURL: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=1200&q=90", about: "Diagnostics and common home appliance repair visits.", tags: ["Washer", "Dryer", "Kitchen appliances"], slots: ["Tomorrow · 11:00", "Tomorrow · 15:00", "Sunday · 12:00"]),
-        .init(name: "SafeHome Pest Control", category: "Pest Control", rating: 4.8, reviews: 201, location: "Dubai", price: "From AED 180", nextSlot: "Tomorrow · 08:30", imageURL: "https://images.unsplash.com/photo-1581579185169-7d6a6f78ec82?auto=format&fit=crop&w=1200&q=90", about: "Residential pest-control visits with service scope confirmed before booking.", tags: ["Apartment", "Villa", "Follow-up"], slots: ["Tomorrow · 08:30", "Tomorrow · 13:30", "Sunday · 09:00"])
+        .init(name: "SafeHome Pest Control", category: "Pest Control", rating: 4.8, reviews: 201, location: "Dubai", price: "From AED 180", nextSlot: "Tomorrow · 08:30", imageURL: pestPhoto, about: "Residential pest-control visits with service scope confirmed before booking.", tags: ["Apartment", "Villa", "Follow-up"], slots: ["Tomorrow · 08:30", "Tomorrow · 13:30", "Sunday · 09:00"])
     ]
 }
 
@@ -81,26 +83,39 @@ struct V4RemotePhoto: View {
     var body: some View {
         AsyncImage(url: URL(string: url)) { phase in
             switch phase {
-            case .success(let image): image.resizable().scaledToFill()
-            case .empty: ZStack { DMTheme.cardMuted; ProgressView().tint(DMTheme.green) }
-            default: LinearGradient(colors: [DMTheme.greenDeep, DMTheme.green], startPoint: .topLeading, endPoint: .bottomTrailing)
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFill()
+            case .empty:
+                ZStack {
+                    DMTheme.cardMuted
+                    ProgressView().tint(DMTheme.green)
+                }
+            default:
+                ZStack {
+                    LinearGradient(colors: [DMTheme.greenDeep, DMTheme.green], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Image(systemName: "photo.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white.opacity(0.75))
+                }
             }
         }
+        .clipped()
     }
 }
 
 struct ServicesMarketplaceV4View: View {
     @State private var search = ""
 
-    private let columns = [
-        GridItem(.flexible(minimum: 0), spacing: 12),
-        GridItem(.flexible(minimum: 0), spacing: 12)
-    ]
-
     private var categories: [V4Category] {
         search.isEmpty ? V4MarketplaceData.categories : V4MarketplaceData.categories.filter {
             $0.name.localizedCaseInsensitiveContains(search) || $0.subtitle.localizedCaseInsensitiveContains(search)
         }
+    }
+
+    private var rowIndexes: [Int] {
+        Array(stride(from: 0, to: categories.count, by: 2))
     }
 
     var body: some View {
@@ -121,6 +136,7 @@ struct ServicesMarketplaceV4View: View {
                         .foregroundStyle(.secondary)
                     TextField("Search services or providers…", text: $search)
                         .textInputAutocapitalization(.never)
+                        .lineLimit(1)
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 54)
@@ -128,12 +144,21 @@ struct ServicesMarketplaceV4View: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .shadow(color: .black.opacity(0.04), radius: 8, y: 3)
 
-                LazyVGrid(columns: columns, spacing: 14) {
-                    ForEach(categories) { category in
-                        NavigationLink(destination: ServiceCategoryV4View(category: category)) {
-                            categoryCard(category)
+                VStack(spacing: 14) {
+                    ForEach(rowIndexes, id: \.self) { index in
+                        HStack(alignment: .top, spacing: 12) {
+                            categoryLink(categories[index])
+                                .frame(maxWidth: .infinity)
+
+                            if index + 1 < categories.count {
+                                categoryLink(categories[index + 1])
+                                    .frame(maxWidth: .infinity)
+                            } else {
+                                Color.clear
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 214)
+                            }
                         }
-                        .buttonStyle(.plain)
                     }
                 }
 
@@ -147,11 +172,18 @@ struct ServicesMarketplaceV4View: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    private func categoryLink(_ category: V4Category) -> some View {
+        NavigationLink(destination: ServiceCategoryV4View(category: category)) {
+            categoryCard(category)
+        }
+        .buttonStyle(.plain)
+    }
+
     private func categoryCard(_ category: V4Category) -> some View {
         VStack(spacing: 0) {
             V4RemotePhoto(url: category.imageURL)
                 .frame(maxWidth: .infinity)
-                .frame(height: 112)
+                .frame(height: 118)
                 .clipped()
 
             HStack(spacing: 8) {
@@ -166,37 +198,40 @@ struct ServicesMarketplaceV4View: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(category.name)
-                        .font(.subheadline.bold())
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(DMTheme.ink)
                         .lineLimit(2)
-                        .minimumScaleFactor(0.78)
+                        .minimumScaleFactor(0.72)
                         .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
-                        .minimumScaleFactor(0.85)
+                        .minimumScaleFactor(0.78)
                         .multilineTextAlignment(.leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "chevron.right")
-                    .font(.caption.bold())
-                    .foregroundStyle(DMTheme.ink.opacity(0.65))
-                    .frame(width: 28, height: 28)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(DMTheme.ink.opacity(0.62))
+                    .frame(width: 24, height: 24)
                     .background(Color(uiColor: .secondarySystemGroupedBackground))
                     .clipShape(Circle())
                     .fixedSize()
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity, minHeight: 84, alignment: .leading)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity, minHeight: 86, maxHeight: 86, alignment: .leading)
             .background(.white)
         }
         .frame(maxWidth: .infinity)
+        .frame(height: 204)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.black.opacity(0.04), lineWidth: 1))
-        .shadow(color: .black.opacity(0.06), radius: 10, y: 5)
+        .shadow(color: .black.opacity(0.06), radius: 9, y: 4)
+        .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     private var ecoFriendlyBanner: some View {
@@ -288,17 +323,25 @@ struct ServiceCategoryV4View: View {
                     V4RemotePhoto(url: category.imageURL)
                     LinearGradient(colors: [.clear, .black.opacity(0.72)], startPoint: .center, endPoint: .bottom)
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(category.name).font(.largeTitle.bold()).lineLimit(2).minimumScaleFactor(0.8)
+                        Text(category.name)
+                            .font(.largeTitle.bold())
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
                         Text(category.subtitle).font(.subheadline)
                     }
                     .foregroundStyle(.white)
                     .padding(18)
                 }
+                .frame(maxWidth: .infinity)
                 .frame(height: 230)
+                .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 28))
 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack { chip("All"); ForEach(category.chips, id: \.self) { chip($0) } }
+                    HStack {
+                        chip("All")
+                        ForEach(category.chips, id: \.self) { chip($0) }
+                    }
                 }
 
                 HStack {
@@ -343,6 +386,7 @@ struct ServiceCategoryV4View: View {
     private func providerCard(_ p: V4Provider) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             V4RemotePhoto(url: p.imageURL)
+                .frame(maxWidth: .infinity)
                 .frame(height: 180)
                 .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 18))
@@ -364,6 +408,7 @@ struct ServiceCategoryV4View: View {
             }
 
             Text(p.category).font(.caption.bold()).foregroundStyle(DMTheme.green)
+
             HStack {
                 Label(p.location, systemImage: "mappin.and.ellipse")
                 Spacer()
@@ -373,9 +418,16 @@ struct ServiceCategoryV4View: View {
             .foregroundStyle(.secondary)
 
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(p.nextSlot).font(.caption.bold()).foregroundStyle(DMTheme.green).lineLimit(2)
+                Text(p.nextSlot)
+                    .font(.caption.bold())
+                    .foregroundStyle(DMTheme.green)
+                    .lineLimit(2)
                 Spacer(minLength: 6)
-                Text(p.price).font(.headline).foregroundStyle(DMTheme.ink).multilineTextAlignment(.trailing).lineLimit(2)
+                Text(p.price)
+                    .font(.headline)
+                    .foregroundStyle(DMTheme.ink)
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(2)
             }
 
             HStack(spacing: 10) {
@@ -393,6 +445,7 @@ struct ServiceCategoryV4View: View {
             }
         }
         .padding(12)
+        .frame(maxWidth: .infinity)
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .shadow(color: .black.opacity(0.07), radius: 10, y: 5)
@@ -408,13 +461,17 @@ struct ProviderV4DetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 V4RemotePhoto(url: provider.imageURL)
+                    .frame(maxWidth: .infinity)
                     .frame(height: 270)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 28))
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top, spacing: 6) {
-                        Text(provider.name).font(.largeTitle.bold()).lineLimit(2).minimumScaleFactor(0.8)
+                        Text(provider.name)
+                            .font(.largeTitle.bold())
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
                         Image(systemName: "checkmark.seal.fill").foregroundStyle(DMTheme.green)
                     }
                     Text(provider.category).font(.subheadline.bold()).foregroundStyle(DMTheme.green)
@@ -436,7 +493,9 @@ struct ProviderV4DetailView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Services").font(.headline)
-                    ForEach(provider.tags, id: \.self) { Label($0, systemImage: "checkmark.circle.fill").foregroundStyle(DMTheme.green) }
+                    ForEach(provider.tags, id: \.self) {
+                        Label($0, systemImage: "checkmark.circle.fill").foregroundStyle(DMTheme.green)
+                    }
                 }
                 .v4Surface()
 

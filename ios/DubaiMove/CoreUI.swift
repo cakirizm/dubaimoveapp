@@ -15,8 +15,12 @@ struct RootTabView: View {
         TabView(selection: $state.selectedTab) {
             NavigationStack { HomeView() }.tag(MainTab.home).tabItem { Label("Home", systemImage: MainTab.home.icon) }
             NavigationStack { MyMoveView() }.tag(MainTab.move).tabItem { Label("My Move", systemImage: MainTab.move.icon) }
-            NavigationStack { ServicesView() }.tag(MainTab.services).tabItem { Label("Services", systemImage: MainTab.services.icon) }
-            NavigationStack { DocumentsView() }.tag(MainTab.documents).tabItem { Label("Documents", systemImage: MainTab.documents.icon) }
+            NavigationStack {
+                if APIConfiguration.isConnectedMode { ConnectedServicesView() } else { ServicesView() }
+            }.tag(MainTab.services).tabItem { Label("Services", systemImage: MainTab.services.icon) }
+            NavigationStack {
+                if APIConfiguration.isConnectedMode { ConnectedDocumentsTabView() } else { DocumentsView() }
+            }.tag(MainTab.documents).tabItem { Label("Documents", systemImage: MainTab.documents.icon) }
             NavigationStack { MoneyView() }.tag(MainTab.money).tabItem { Label("Money", systemImage: MainTab.money.icon) }
         }.tint(DMTheme.green)
     }
@@ -119,6 +123,7 @@ struct MyMoveView: View {
         List {
             Section { HStack { VStack(alignment: .leading) { Text("Dubai Marina → Dubai Hills").font(.headline); Text("28 September · 64% ready").foregroundStyle(.secondary) }; Spacer(); NavigationLink(value: AppRoute.reschedule) { Image(systemName: "calendar.badge.clock") } } }
             Section("Old home → Move → New home") { ForEach(state.moveTasks) { task in NavigationLink(value: task.destination) { HStack(spacing: 12) { Image(systemName: statusIcon(task.status)).foregroundStyle(statusColor(task.status)).frame(width: 28); VStack(alignment: .leading) { Text(task.title).font(.headline); Text(task.subtitle).font(.caption).foregroundStyle(.secondary) } }.padding(.vertical, 4) } } }
+            if APIConfiguration.isConnectedMode { Section("Live setup") { NavigationLink("Search / confirm building", destination: ConnectedBuildingSearchView()); NavigationLink("Live requests & bookings", destination: ConnectedWorkspaceView()) } }
             Section("Original workflow") { NavigationLink("Full Checklist", destination: OriginalAppCoverageView(screen: .fullChecklist)); NavigationLink("Blocked Tasks", destination: OriginalAppCoverageView(screen: .blockedTask)); NavigationLink("Move Timeline", destination: OriginalAppCoverageView(screen: .timeline)); NavigationLink("Old Home Dashboard", destination: OriginalAppCoverageView(screen: .oldHomeDashboard)) }
             Section("Move tools") { NavigationLink("Move Day Live", value: AppRoute.moveDay); NavigationLink("Status Sharing", value: AppRoute.statusShare); NavigationLink("New-home Starter Pack", value: AppRoute.starterPack) }
         }.navigationTitle("My Move").navigationDestination(for: AppRoute.self) { FeatureRouter(route: $0) }

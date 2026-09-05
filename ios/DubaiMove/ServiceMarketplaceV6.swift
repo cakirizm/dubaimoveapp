@@ -5,7 +5,7 @@ struct PremiumRootTabViewV6: View {
 
     var body: some View {
         TabView(selection: $state.selectedTab) {
-            NavigationStack { PremiumHomeView() }
+            NavigationStack { SmartHomeDashboardView() }
                 .tag(MainTab.home)
                 .tabItem { Label("Home", systemImage: "house.fill") }
 

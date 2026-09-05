@@ -23,7 +23,7 @@ struct OnboardingView: View {
                         Text("Manage an existing property").tag("Manage an existing property")
                     }.pickerStyle(.menu).padding().background(DMTheme.card).clipShape(RoundedRectangle(cornerRadius: 16))
                 }
-                if step == 0 {
+                if step == 0 && !APIConfiguration.isConnectedMode {
                     HStack {
                         NavigationLink("Create Account", destination: OriginalAppCoverageView(screen: .createAccount))
                         Spacer()
@@ -54,6 +54,15 @@ struct OnboardingView: View {
 struct MoreView: View {
     var body: some View {
         List {
+            if APIConfiguration.isConnectedMode {
+                Section("Live backend") {
+                    NavigationLink(destination: ConnectedWorkspaceView()) {
+                        Label("Connected Workspace", systemImage: "network")
+                    }
+                    Text("Live moves, requests, quotes, bookings, messages and private documents from the configured backend.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+            }
             Section("Complete app coverage") {
                 NavigationLink(destination: OriginalScreenIndexView()) {
                     Label("Original U-001…U-094 Screens", systemImage: "rectangle.stack.fill")

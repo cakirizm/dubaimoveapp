@@ -43,13 +43,16 @@ struct SmartHomeDashboardView: View {
                 .scaledToFit()
                 .frame(width: 54, height: 54)
 
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text("Dubai ")
-                        .font(.system(size: 27, weight: .heavy, design: .rounded))
+            VStack(alignment: .leading, spacing: 1) {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    Text("Dubai")
+                        .font(.system(size: 29, weight: .heavy, design: .rounded))
+                        .kerning(-0.8)
                         .foregroundStyle(DMTheme.ink)
                     Text("Move")
-                        .font(.system(size: 27, weight: .heavy, design: .rounded))
+                        .font(.system(size: 29, weight: .semibold, design: .serif))
+                        .italic()
+                        .kerning(-0.5)
                         .foregroundStyle(DMTheme.green)
                 }
                 Text("Your move, organized.")
@@ -77,14 +80,16 @@ struct SmartHomeDashboardView: View {
         GeometryReader { geo in
             let w = geo.size.width
             let compact = w < 370
-            let summaryWidth = min(max(w * 0.43, 145), 174)
-            let ctaWidth = min(max(w * 0.49, 158), 205)
+            let summaryWidth = min(max(w * 0.37, 132), 154)
+            let ctaWidth = min(max(w * 0.43, 150), 180)
 
             ZStack {
                 AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1400&q=88")) { phase in
                     switch phase {
                     case .success(let image):
-                        image.resizable().scaledToFill()
+                        image
+                            .resizable()
+                            .scaledToFill()
                     default:
                         LinearGradient(
                             colors: [Color(red: 0.90, green: 0.96, blue: 0.98), Color(red: 1.0, green: 0.94, blue: 0.87)],
@@ -93,11 +98,12 @@ struct SmartHomeDashboardView: View {
                         )
                     }
                 }
-                .frame(width: w, height: 350)
+                .frame(width: w, height: 420)
+                .offset(x: 18, y: -42)
                 .clipped()
 
                 LinearGradient(
-                    colors: [Color.white.opacity(0.96), Color.white.opacity(0.82), Color.white.opacity(0.18), Color.clear],
+                    colors: [Color.white.opacity(0.96), Color.white.opacity(0.83), Color.white.opacity(0.18), Color.clear],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
@@ -108,13 +114,13 @@ struct SmartHomeDashboardView: View {
                         .foregroundStyle(Color(red: 0.01, green: 0.20, blue: 0.16))
                         .lineLimit(3)
                         .minimumScaleFactor(0.82)
-                        .frame(maxWidth: w * 0.68, alignment: .leading)
+                        .frame(maxWidth: w * 0.66, alignment: .leading)
 
                     Text("All your move tasks, services and official steps in one place.")
                         .font(.system(size: compact ? 14 : 15, weight: .medium))
                         .foregroundStyle(DMTheme.ink.opacity(0.82))
                         .lineLimit(3)
-                        .frame(maxWidth: w * 0.64, alignment: .leading)
+                        .frame(maxWidth: w * 0.62, alignment: .leading)
 
                     Spacer()
                 }
@@ -128,11 +134,11 @@ struct SmartHomeDashboardView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
                 NavigationLink(destination: PremiumJourneyView()) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 9) {
                         Text("Start My Move").lineLimit(1)
                         Image(systemName: "arrow.right")
                     }
-                    .font(.system(size: compact ? 16 : 17, weight: .bold))
+                    .font(.system(size: compact ? 15 : 16, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(width: ctaWidth, height: 58)
                     .background(DMTheme.greenDeep)

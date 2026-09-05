@@ -236,7 +236,7 @@ struct SmartHomeDashboardView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 quickAction("Book a Service", "Cleaning, Moving...", "truck.box.fill", .orange) { state.selectedTab = .services }
-                quickAction("Handle Documents", "Ejari, DEWA, etc.", "doc.fill", .green) { state.selectedTab = .documents }
+                quickAction("Official Guides", "Ejari, DEWA, internet...", "map.fill", .green) { state.selectedTab = .move }
                 quickAction("Buy Supplies", "Boxes, packing...", "shippingbox.fill", .blue) { state.selectedTab = .services }
                 quickAction("Edit Move", "Areas & date", "building.2.fill", .purple) { }
             }
@@ -317,15 +317,34 @@ struct SmartHomeDashboardView: View {
 
     private var officialEssentials: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Official essentials").font(.title2.bold())
-            HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Official essentials").font(.title2.bold())
+                Text("Beginner guides with verified channels, phone support and nearby locations where relevant.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 NavigationLink(destination: EjariGuidedView()) {
-                    officialCard(title: "Ejari", subtitle: "Dubai Land Department", icon: "doc.text.fill", colors: [DMTheme.greenDeep, DMTheme.green])
-                }.buttonStyle(.plain)
+                    officialCard(title: "Ejari", subtitle: "DLD · docs · fees · locations", icon: "doc.text.fill", colors: [DMTheme.greenDeep, DMTheme.green])
+                }
                 NavigationLink(destination: DewaGuidedView()) {
                     officialCard(title: "DEWA", subtitle: "Move-In · Move-To · Move-Out", icon: "bolt.fill", colors: [.blue, .cyan])
-                }.buttonStyle(.plain)
+                }
+                NavigationLink(destination: TelecomGuidedView()) {
+                    officialCard(title: "Internet", subtitle: "du · e& · Virgin · nearby stores", icon: "wifi", colors: [.purple, .indigo])
+                }
+                NavigationLink(destination: CoolingGuidedView()) {
+                    officialCard(title: "Cooling", subtitle: "Chiller free? · Empower · Emicool", icon: "snowflake", colors: [.cyan, .teal])
+                }
+                NavigationLink(destination: BuildingGuidedView()) {
+                    officialCard(title: "Building", subtitle: "Permit · lift · access · contacts", icon: "building.2.fill", colors: [.orange, .pink])
+                }
+                NavigationLink(destination: GuidedMovePlanView()) {
+                    officialCard(title: "Full Guide", subtitle: "Every move step in the right order", icon: "map.fill", colors: [DMTheme.green, .teal])
+                }
             }
+            .buttonStyle(.plain)
         }
     }
 

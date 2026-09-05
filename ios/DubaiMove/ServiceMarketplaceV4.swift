@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 struct PremiumRootTabViewV4: View {
     @EnvironmentObject private var state: AppState
@@ -51,14 +52,14 @@ struct V4Provider: Identifiable, Hashable {
 
 enum V4MarketplaceData {
     static let categories: [V4Category] = [
-        .init(name: "Cleaning", subtitle: "Deep, regular and move-out cleaning", imageURL: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=85", chips: ["Regular", "Deep clean", "Move-out", "Eco-friendly"]),
-        .init(name: "Moving", subtitle: "Packing, transport and unpacking", imageURL: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1200&q=85", chips: ["Apartment", "Villa", "Packing", "Boxes"]),
-        .init(name: "Painting", subtitle: "Touch-ups and full repainting", imageURL: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=1200&q=85", chips: ["Touch-up", "Single room", "Full repaint", "Move-out"]),
-        .init(name: "Maintenance", subtitle: "Handyman, AC and common repairs", imageURL: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=1200&q=85", chips: ["Handyman", "AC", "Mounting", "Repairs"]),
-        .init(name: "Storage", subtitle: "Short and long-term storage", imageURL: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=85", chips: ["Pickup", "Monthly", "Short-term", "Long-term"]),
-        .init(name: "Electrical & Plumbing", subtitle: "Residential electrical and plumbing work", imageURL: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=85", chips: ["Electrical", "Plumbing", "Leaks", "Fixtures"]),
-        .init(name: "Appliance Repair", subtitle: "Home appliance diagnostics and repair", imageURL: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=1200&q=85", chips: ["Washer", "Dryer", "Fridge", "Dishwasher"]),
-        .init(name: "Pest Control", subtitle: "Treatment and prevention for homes", imageURL: "https://images.unsplash.com/photo-1581579185169-7d6a6f78ec82?auto=format&fit=crop&w=1200&q=85", chips: ["Apartment", "Villa", "Treatment", "Follow-up"])
+        .init(name: "Cleaning", subtitle: "Homes, apartments, villas", imageURL: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=85", chips: ["Regular", "Deep clean", "Move-out", "Eco-friendly"]),
+        .init(name: "Moving", subtitle: "Home & office moving", imageURL: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1200&q=85", chips: ["Apartment", "Villa", "Packing", "Boxes"]),
+        .init(name: "Painting", subtitle: "Interior & exterior", imageURL: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=1200&q=85", chips: ["Touch-up", "Single room", "Full repaint", "Move-out"]),
+        .init(name: "Maintenance", subtitle: "General repairs & handyman", imageURL: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=1200&q=85", chips: ["Handyman", "AC", "Mounting", "Repairs"]),
+        .init(name: "Storage", subtitle: "Short & long term", imageURL: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=85", chips: ["Pickup", "Monthly", "Short-term", "Long-term"]),
+        .init(name: "Electrical & Plumbing", subtitle: "Home technical services", imageURL: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=85", chips: ["Electrical", "Plumbing", "Leaks", "Fixtures"]),
+        .init(name: "Appliance Repair", subtitle: "AC, fridge, washer & more", imageURL: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=1200&q=85", chips: ["Washer", "Dryer", "Fridge", "Dishwasher"]),
+        .init(name: "Pest Control", subtitle: "Safe home treatments", imageURL: "https://images.unsplash.com/photo-1581579185169-7d6a6f78ec82?auto=format&fit=crop&w=1200&q=85", chips: ["Apartment", "Villa", "Treatment", "Follow-up"])
     ]
 
     static let providers: [V4Provider] = [
@@ -76,6 +77,7 @@ enum V4MarketplaceData {
 
 struct V4RemotePhoto: View {
     let url: String
+
     var body: some View {
         AsyncImage(url: URL(string: url)) { phase in
             switch phase {
@@ -89,32 +91,182 @@ struct V4RemotePhoto: View {
 
 struct ServicesMarketplaceV4View: View {
     @State private var search = ""
+
+    private let columns = [
+        GridItem(.flexible(minimum: 0), spacing: 12),
+        GridItem(.flexible(minimum: 0), spacing: 12)
+    ]
+
     private var categories: [V4Category] {
-        search.isEmpty ? V4MarketplaceData.categories : V4MarketplaceData.categories.filter { $0.name.localizedCaseInsensitiveContains(search) }
+        search.isEmpty ? V4MarketplaceData.categories : V4MarketplaceData.categories.filter {
+            $0.name.localizedCaseInsensitiveContains(search) || $0.subtitle.localizedCaseInsensitiveContains(search)
+        }
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                Text("Services").font(.system(size: 40, weight: .bold, design: .rounded))
-                Text("Professional help for your home and move. Compare providers, check availability and book from one place.").font(.subheadline).foregroundStyle(.secondary)
-                HStack { Image(systemName: "magnifyingglass").foregroundStyle(.secondary); TextField("Search services", text: $search) }
-                    .padding(.horizontal, 14).frame(height: 48).background(.white).clipShape(RoundedRectangle(cornerRadius: 16))
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Services")
+                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                    Text("Professional help for your home and move. Compare providers, check availability and book from one place.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                HStack(spacing: 12) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                    TextField("Search services or providers…", text: $search)
+                        .textInputAutocapitalization(.never)
+                }
+                .padding(.horizontal, 16)
+                .frame(height: 54)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .shadow(color: .black.opacity(0.04), radius: 8, y: 3)
+
+                LazyVGrid(columns: columns, spacing: 14) {
                     ForEach(categories) { category in
                         NavigationLink(destination: ServiceCategoryV4View(category: category)) {
-                            ZStack(alignment: .bottomLeading) {
-                                V4RemotePhoto(url: category.imageURL)
-                                LinearGradient(colors: [.clear, .black.opacity(0.72)], startPoint: .center, endPoint: .bottom)
-                                Text(category.name).font(.headline.bold()).foregroundStyle(.white).padding(12)
-                            }
-                            .frame(height: 170).clipShape(RoundedRectangle(cornerRadius: 22))
-                        }.buttonStyle(.plain)
+                            categoryCard(category)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-            }.padding(16).padding(.bottom, 24)
-        }.background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea()).navigationBarTitleDisplayMode(.inline)
+
+                ecoFriendlyBanner
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 34)
+        }
+        .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func categoryCard(_ category: V4Category) -> some View {
+        VStack(spacing: 0) {
+            V4RemotePhoto(url: category.imageURL)
+                .frame(maxWidth: .infinity)
+                .frame(height: 112)
+                .clipped()
+
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle().fill(iconBackground(for: category.name))
+                    Image(systemName: iconName(for: category.name))
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(iconColor(for: category.name))
+                }
+                .frame(width: 38, height: 38)
+                .fixedSize()
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(category.name)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(DMTheme.ink)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.78)
+                        .multilineTextAlignment(.leading)
+                    Text(category.subtitle)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+                        .multilineTextAlignment(.leading)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.bold())
+                    .foregroundStyle(DMTheme.ink.opacity(0.65))
+                    .frame(width: 28, height: 28)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .clipShape(Circle())
+                    .fixedSize()
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, minHeight: 84, alignment: .leading)
+            .background(.white)
+        }
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.black.opacity(0.04), lineWidth: 1))
+        .shadow(color: .black.opacity(0.06), radius: 10, y: 5)
+    }
+
+    private var ecoFriendlyBanner: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "leaf.fill")
+                .font(.title2)
+                .foregroundStyle(DMTheme.green)
+                .frame(width: 46, height: 46)
+                .background(DMTheme.mint)
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Eco-Friendly Providers")
+                    .font(.headline)
+                    .foregroundStyle(DMTheme.greenDeep)
+                Text("Find sustainable and eco-friendly service options.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+            Spacer(minLength: 4)
+            Image(systemName: "chevron.right")
+                .font(.caption.bold())
+                .foregroundStyle(DMTheme.green)
+        }
+        .padding(16)
+        .background(DMTheme.mint.opacity(0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+
+    private func iconName(for category: String) -> String {
+        switch category {
+        case "Cleaning": return "sparkles"
+        case "Moving": return "truck.box.fill"
+        case "Painting": return "paintbrush.fill"
+        case "Maintenance": return "wrench.and.screwdriver.fill"
+        case "Storage": return "shippingbox.fill"
+        case "Electrical & Plumbing": return "bolt.fill"
+        case "Appliance Repair": return "gearshape.fill"
+        case "Pest Control": return "ant.fill"
+        default: return "square.grid.2x2.fill"
+        }
+    }
+
+    private func iconBackground(for category: String) -> Color {
+        switch category {
+        case "Cleaning": return Color.blue.opacity(0.14)
+        case "Moving": return DMTheme.mint
+        case "Painting": return Color.red.opacity(0.12)
+        case "Maintenance": return Color.yellow.opacity(0.22)
+        case "Storage": return Color.purple.opacity(0.14)
+        case "Electrical & Plumbing": return Color.orange.opacity(0.16)
+        case "Appliance Repair": return Color.cyan.opacity(0.14)
+        case "Pest Control": return Color.red.opacity(0.12)
+        default: return DMTheme.cardMuted
+        }
+    }
+
+    private func iconColor(for category: String) -> Color {
+        switch category {
+        case "Cleaning": return .blue
+        case "Moving": return DMTheme.green
+        case "Painting": return .red
+        case "Maintenance": return .orange
+        case "Storage": return .purple
+        case "Electrical & Plumbing": return .orange
+        case "Appliance Repair": return .cyan
+        case "Pest Control": return .red
+        default: return DMTheme.green
+        }
     }
 }
 
@@ -122,7 +274,12 @@ struct ServiceCategoryV4View: View {
     let category: V4Category
     @State private var search = ""
     @State private var selectedChip = "All"
-    private var providers: [V4Provider] { V4MarketplaceData.providers.filter { $0.category == category.name && (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search)) } }
+
+    private var providers: [V4Provider] {
+        V4MarketplaceData.providers.filter {
+            $0.category == category.name && (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search))
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -130,30 +287,115 @@ struct ServiceCategoryV4View: View {
                 ZStack(alignment: .bottomLeading) {
                     V4RemotePhoto(url: category.imageURL)
                     LinearGradient(colors: [.clear, .black.opacity(0.72)], startPoint: .center, endPoint: .bottom)
-                    VStack(alignment: .leading, spacing: 5) { Text(category.name).font(.largeTitle.bold()); Text(category.subtitle).font(.subheadline) }.foregroundStyle(.white).padding(18)
-                }.frame(height: 230).clipShape(RoundedRectangle(cornerRadius: 28))
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(category.name).font(.largeTitle.bold()).lineLimit(2).minimumScaleFactor(0.8)
+                        Text(category.subtitle).font(.subheadline)
+                    }
+                    .foregroundStyle(.white)
+                    .padding(18)
+                }
+                .frame(height: 230)
+                .clipShape(RoundedRectangle(cornerRadius: 28))
 
-                ScrollView(.horizontal, showsIndicators: false) { HStack { chip("All"); ForEach(category.chips, id: \.self) { chip($0) } } }
-                HStack { Image(systemName: "magnifyingglass").foregroundStyle(.secondary); TextField("Search providers", text: $search) }.padding(.horizontal, 14).frame(height: 48).background(.white).clipShape(RoundedRectangle(cornerRadius: 16))
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack { chip("All"); ForEach(category.chips, id: \.self) { chip($0) } }
+                }
+
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                    TextField("Search providers", text: $search)
+                }
+                .padding(.horizontal, 14)
+                .frame(height: 48)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
                 Text("\(providers.count) providers").font(.headline)
-                ForEach(providers) { provider in NavigationLink(destination: ProviderV4DetailView(provider: provider)) { providerCard(provider) }.buttonStyle(.plain) }
-            }.padding(16).padding(.bottom, 24)
-        }.background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea()).navigationTitle(category.name).navigationBarTitleDisplayMode(.inline)
+
+                ForEach(providers) { provider in
+                    NavigationLink(destination: ProviderV4DetailView(provider: provider)) {
+                        providerCard(provider)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(16)
+            .padding(.bottom, 24)
+        }
+        .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
+        .navigationTitle(category.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func chip(_ text: String) -> some View {
-        Button { selectedChip = text } label: { Text(text).font(.caption.bold()).padding(.horizontal, 12).padding(.vertical, 9).background(selectedChip == text ? DMTheme.green : .white).foregroundStyle(selectedChip == text ? .white : DMTheme.ink).clipShape(Capsule()) }.buttonStyle(.plain)
+        Button { selectedChip = text } label: {
+            Text(text)
+                .font(.caption.bold())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background(selectedChip == text ? DMTheme.green : .white)
+                .foregroundStyle(selectedChip == text ? .white : DMTheme.ink)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 
     private func providerCard(_ p: V4Provider) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            V4RemotePhoto(url: p.imageURL).frame(height: 180).clipped().clipShape(RoundedRectangle(cornerRadius: 18))
-            HStack { Text(p.name).font(.title3.bold()).foregroundStyle(DMTheme.ink); if true { Image(systemName: "checkmark.seal.fill").foregroundStyle(DMTheme.green) }; Spacer(); Text(String(format: "%.1f", p.rating)).bold().foregroundStyle(DMTheme.ink); Image(systemName: "star.fill").foregroundStyle(.orange) }
+            V4RemotePhoto(url: p.imageURL)
+                .frame(height: 180)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+
+            HStack(alignment: .top, spacing: 6) {
+                Text(p.name)
+                    .font(.title3.bold())
+                    .foregroundStyle(DMTheme.ink)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                Image(systemName: "checkmark.seal.fill").foregroundStyle(DMTheme.green)
+                Spacer(minLength: 6)
+                HStack(spacing: 3) {
+                    Text(String(format: "%.1f", p.rating)).bold()
+                    Image(systemName: "star.fill").foregroundStyle(.orange)
+                }
+                .foregroundStyle(DMTheme.ink)
+                .fixedSize()
+            }
+
             Text(p.category).font(.caption.bold()).foregroundStyle(DMTheme.green)
-            HStack { Label(p.location, systemImage: "mappin.and.ellipse"); Spacer(); Text("\(p.reviews) reviews") }.font(.caption).foregroundStyle(.secondary)
-            HStack { Text(p.nextSlot).font(.caption.bold()).foregroundStyle(DMTheme.green); Spacer(); Text(p.price).font(.headline).foregroundStyle(DMTheme.ink) }
-            HStack { Text("View Profile").font(.subheadline.bold()).foregroundStyle(DMTheme.green); Spacer(); Text("Book Now").font(.subheadline.bold()).foregroundStyle(.white).padding(.horizontal, 18).padding(.vertical, 10).background(DMTheme.green).clipShape(RoundedRectangle(cornerRadius: 12)) }
-        }.padding(12).background(.white).clipShape(RoundedRectangle(cornerRadius: 24)).shadow(color: .black.opacity(0.07), radius: 10, y: 5)
+            HStack {
+                Label(p.location, systemImage: "mappin.and.ellipse")
+                Spacer()
+                Text("\(p.reviews) reviews")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(p.nextSlot).font(.caption.bold()).foregroundStyle(DMTheme.green).lineLimit(2)
+                Spacer(minLength: 6)
+                Text(p.price).font(.headline).foregroundStyle(DMTheme.ink).multilineTextAlignment(.trailing).lineLimit(2)
+            }
+
+            HStack(spacing: 10) {
+                Text("View Profile")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(DMTheme.green)
+                    .frame(maxWidth: .infinity)
+                Text("Book Now")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(DMTheme.green)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .padding(12)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: .black.opacity(0.07), radius: 10, y: 5)
     }
 }
 
@@ -165,24 +407,86 @@ struct ProviderV4DetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                V4RemotePhoto(url: provider.imageURL).frame(height: 270).clipped().clipShape(RoundedRectangle(cornerRadius: 28))
+                V4RemotePhoto(url: provider.imageURL)
+                    .frame(height: 270)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 28))
+
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack { Text(provider.name).font(.largeTitle.bold()); Image(systemName: "checkmark.seal.fill").foregroundStyle(DMTheme.green) }
+                    HStack(alignment: .top, spacing: 6) {
+                        Text(provider.name).font(.largeTitle.bold()).lineLimit(2).minimumScaleFactor(0.8)
+                        Image(systemName: "checkmark.seal.fill").foregroundStyle(DMTheme.green)
+                    }
                     Text(provider.category).font(.subheadline.bold()).foregroundStyle(DMTheme.green)
-                    HStack { Label(String(format: "%.1f (%d)", provider.rating, provider.reviews), systemImage: "star.fill"); Spacer(); Label(provider.location, systemImage: "mappin.and.ellipse") }.font(.caption).foregroundStyle(.secondary)
+                    HStack {
+                        Label(String(format: "%.1f (%d)", provider.rating, provider.reviews), systemImage: "star.fill")
+                        Spacer()
+                        Label(provider.location, systemImage: "mappin.and.ellipse")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     Text(provider.price).font(.title3.bold())
                 }
-                VStack(alignment: .leading, spacing: 8) { Text("About").font(.headline); Text(provider.about).font(.subheadline).foregroundStyle(.secondary) }.v4Surface()
-                VStack(alignment: .leading, spacing: 10) { Text("Services").font(.headline); ForEach(provider.tags, id: \.self) { Label($0, systemImage: "checkmark.circle.fill").foregroundStyle(DMTheme.green) } }.v4Surface()
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("About").font(.headline)
+                    Text(provider.about).font(.subheadline).foregroundStyle(.secondary)
+                }
+                .v4Surface()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Services").font(.headline)
+                    ForEach(provider.tags, id: \.self) { Label($0, systemImage: "checkmark.circle.fill").foregroundStyle(DMTheme.green) }
+                }
+                .v4Surface()
+
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Available slots").font(.headline)
-                    ForEach(provider.slots, id: \.self) { slot in Button { selectedSlot = slot } label: { HStack { Image(systemName: selectedSlot == slot ? "checkmark.circle.fill" : "circle"); Text(slot); Spacer() }.foregroundStyle(selectedSlot == slot ? DMTheme.green : DMTheme.ink).padding(12).background(selectedSlot == slot ? DMTheme.mint : DMTheme.cardMuted).clipShape(RoundedRectangle(cornerRadius: 14)) }.buttonStyle(.plain) }
-                    Button("Continue to booking") { }.buttonStyle(.borderedProminent).tint(DMTheme.green).disabled(selectedSlot == nil).frame(maxWidth: .infinity)
-                }.v4Surface()
-                VStack(alignment: .leading, spacing: 10) { Text("Message provider").font(.headline); TextField("Ask about scope, access, timing or equipment", text: $message, axis: .vertical).padding(12).background(DMTheme.cardMuted).clipShape(RoundedRectangle(cornerRadius: 14)); Button("Send message") { message = "" }.buttonStyle(.borderedProminent).tint(DMTheme.green).disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) }.v4Surface()
-                Text("Provider listings shown in backend-free TestFlight mode are sample marketplace data. Live listings, availability, booking and chat will come from the connected provider platform.").font(.caption).foregroundStyle(.secondary)
-            }.padding(16).padding(.bottom, 24)
-        }.background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea()).navigationTitle(provider.name).navigationBarTitleDisplayMode(.inline)
+                    ForEach(provider.slots, id: \.self) { slot in
+                        Button { selectedSlot = slot } label: {
+                            HStack {
+                                Image(systemName: selectedSlot == slot ? "checkmark.circle.fill" : "circle")
+                                Text(slot)
+                                Spacer()
+                            }
+                            .foregroundStyle(selectedSlot == slot ? DMTheme.green : DMTheme.ink)
+                            .padding(12)
+                            .background(selectedSlot == slot ? DMTheme.mint : DMTheme.cardMuted)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    Button("Continue to booking") { }
+                        .buttonStyle(.borderedProminent)
+                        .tint(DMTheme.green)
+                        .disabled(selectedSlot == nil)
+                        .frame(maxWidth: .infinity)
+                }
+                .v4Surface()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Message provider").font(.headline)
+                    TextField("Ask about scope, access, timing or equipment", text: $message, axis: .vertical)
+                        .padding(12)
+                        .background(DMTheme.cardMuted)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    Button("Send message") { message = "" }
+                        .buttonStyle(.borderedProminent)
+                        .tint(DMTheme.green)
+                        .disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+                .v4Surface()
+
+                Text("Provider listings shown in backend-free TestFlight mode are sample marketplace data. Live listings, availability, booking and chat will come from the connected provider platform.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(16)
+            .padding(.bottom, 24)
+        }
+        .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
+        .navigationTitle(provider.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

@@ -83,7 +83,7 @@ struct ServicesMarketplaceV6View: View {
 
                     LazyVGrid(columns: columns, alignment: .leading, spacing: 14) {
                         ForEach(categories) { category in
-                            NavigationLink(destination: ServiceCategoryV5View(category: category)) {
+                            NavigationLink(destination: ServiceCategoryV6View(category: category)) {
                                 serviceCard(category, width: cardWidth)
                             }
                             .buttonStyle(.plain)
@@ -187,5 +187,186 @@ struct ServicesMarketplaceV6View: View {
         .frame(width: width)
         .background(DMTheme.mint.opacity(0.62))
         .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+}
+
+struct ServiceCategoryV6View: View {
+    let category: V5Category
+    @State private var search = ""
+    @State private var selectedChip = "All"
+
+    private var providers: [V5Provider] {
+        V5MarketplaceData.providers.filter {
+            $0.category == category.name &&
+            (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search))
+        }
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            let horizontalPadding: CGFloat = 16
+            let contentWidth = max(0, proxy.size.width - horizontalPadding * 2)
+
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(alignment: .leading, spacing: 16) {
+                    ZStack(alignment: .bottomLeading) {
+                        V5RemotePhoto(url: category.imageURL, fallbackURL: category.fallbackImageURL)
+                            .frame(width: contentWidth, height: 220)
+                            .clipped()
+
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.68)],
+                            startPoint: .center,
+                            endPoint: .bottom
+                        )
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(category.name)
+                                .font(.system(size: 31, weight: .bold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Text(category.subtitle)
+                                .font(.subheadline)
+                                .lineLimit(2)
+                        }
+                        .foregroundStyle(.white)
+                        .padding(16)
+                    }
+                    .frame(width: contentWidth, height: 220)
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            chip("All")
+                            ForEach(category.chips, id: \.self) { chip($0) }
+                        }
+                    }
+                    .frame(width: contentWidth, alignment: .leading)
+
+                    HStack(spacing: 10) {
+                        Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                        TextField("Search providers", text: $search)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, 14)
+                    .frame(width: contentWidth, height: 48)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    Text("\(providers.count) providers")
+                        .font(.headline)
+                        .frame(width: contentWidth, alignment: .leading)
+
+                    ForEach(providers) { provider in
+                        NavigationLink(destination: ProviderV5DetailView(provider: provider)) {
+                            providerCard(provider, width: contentWidth)
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: contentWidth)
+                    }
+                }
+                .frame(width: contentWidth, alignment: .leading)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.top, 8)
+                .padding(.bottom, 110)
+            }
+            .frame(width: proxy.size.width)
+            .clipped()
+            .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
+        }
+        .navigationTitle(category.name)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func chip(_ text: String) -> some View {
+        Button { selectedChip = text } label: {
+            Text(text)
+                .font(.caption.bold())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background(selectedChip == text ? DMTheme.green : .white)
+                .foregroundStyle(selectedChip == text ? .white : DMTheme.ink)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func providerCard(_ provider: V5Provider, width: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            V5RemotePhoto(url: provider.imageURL, fallbackURL: provider.fallbackImageURL)
+                .frame(width: width - 24, height: 170)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+
+            HStack(alignment: .top, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 5) {
+                        Text(provider.name)
+                            .font(.headline)
+                            .foregroundStyle(DMTheme.ink)
+                            .lineLimit(2)
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(DMTheme.green)
+                    }
+                    Text(provider.category)
+                        .font(.caption.bold())
+                        .foregroundStyle(DMTheme.green)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                HStack(spacing: 3) {
+                    Text(String(format: "%.1f", provider.rating)).bold()
+                    Image(systemName: "star.fill").foregroundStyle(.orange)
+                }
+                .font(.caption)
+                .fixedSize()
+            }
+
+            HStack {
+                Label(provider.location, systemImage: "mappin.and.ellipse")
+                Spacer()
+                Text("\(provider.reviews) reviews")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(provider.nextSlot)
+                    .font(.caption.bold())
+                    .foregroundStyle(DMTheme.green)
+                    .lineLimit(2)
+                Spacer(minLength: 8)
+                Text(provider.price)
+                    .font(.headline)
+                    .foregroundStyle(DMTheme.ink)
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(2)
+            }
+
+            HStack(spacing: 10) {
+                Text("View Profile")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(DMTheme.green)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(DMTheme.border, lineWidth: 1)
+                    )
+
+                Text("Book Now")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(DMTheme.green)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .padding(12)
+        .frame(width: width, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: .black.opacity(0.06), radius: 9, y: 4)
     }
 }

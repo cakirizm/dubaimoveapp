@@ -11,9 +11,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare app icon
+      - name: Generate Dubai Move brand assets
         run: |
-          base64 -D -i ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 -o ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          swift scripts/generate_brand_assets.swift
+          file ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          file ios/DubaiMove/Assets.xcassets/BrandLogo.imageset/BrandLogo.png
+          file ios/DubaiMove/Assets.xcassets/BrandWelcome.imageset/BrandWelcome.png
       - name: Build DubaiMove
         run: |
           xcodebuild \

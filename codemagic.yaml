@@ -17,7 +17,7 @@ workflows:
     scripts:
       - name: Prepare app icon
         script: |
-          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          base64 -D ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Show Xcode version
         script: xcodebuild -version
       - name: Validate project and scheme
@@ -58,7 +58,7 @@ workflows:
     scripts:
       - name: Prepare TestFlight app icon
         script: |
-          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          base64 -D ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Apply signing profiles
         script: xcode-project use-profiles
       - name: Set TestFlight build number
@@ -96,7 +96,7 @@ workflows:
     scripts:
       - name: Prepare app icon
         script: |
-          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+          base64 -D ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Apply signing profiles
         script: xcode-project use-profiles
       - name: Build IPA

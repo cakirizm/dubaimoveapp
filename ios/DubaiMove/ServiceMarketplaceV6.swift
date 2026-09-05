@@ -9,7 +9,7 @@ struct PremiumRootTabViewV6: View {
                 .tag(MainTab.home)
                 .tabItem { Label("Home", systemImage: "house.fill") }
 
-            NavigationStack { SmartMoveCommandCenterView() }
+            NavigationStack { CompleteMoveCommandCenterView() }
                 .tag(MainTab.move)
                 .tabItem { Label("My Move", systemImage: "list.number") }
 

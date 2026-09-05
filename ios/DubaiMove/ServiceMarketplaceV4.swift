@@ -172,16 +172,26 @@ struct ProviderV4DetailView: View {
                     HStack { Label(String(format: "%.1f (%d)", provider.rating, provider.reviews), systemImage: "star.fill"); Spacer(); Label(provider.location, systemImage: "mappin.and.ellipse") }.font(.caption).foregroundStyle(.secondary)
                     Text(provider.price).font(.title3.bold())
                 }
-                VStack(alignment: .leading, spacing: 8) { Text("About").font(.headline); Text(provider.about).font(.subheadline).foregroundStyle(.secondary) }.premiumSurface()
-                VStack(alignment: .leading, spacing: 10) { Text("Services").font(.headline); ForEach(provider.tags, id: \.self) { Label($0, systemImage: "checkmark.circle.fill").foregroundStyle(DMTheme.green) } }.premiumSurface()
+                VStack(alignment: .leading, spacing: 8) { Text("About").font(.headline); Text(provider.about).font(.subheadline).foregroundStyle(.secondary) }.v4Surface()
+                VStack(alignment: .leading, spacing: 10) { Text("Services").font(.headline); ForEach(provider.tags, id: \.self) { Label($0, systemImage: "checkmark.circle.fill").foregroundStyle(DMTheme.green) } }.v4Surface()
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Available slots").font(.headline)
                     ForEach(provider.slots, id: \.self) { slot in Button { selectedSlot = slot } label: { HStack { Image(systemName: selectedSlot == slot ? "checkmark.circle.fill" : "circle"); Text(slot); Spacer() }.foregroundStyle(selectedSlot == slot ? DMTheme.green : DMTheme.ink).padding(12).background(selectedSlot == slot ? DMTheme.mint : DMTheme.cardMuted).clipShape(RoundedRectangle(cornerRadius: 14)) }.buttonStyle(.plain) }
                     Button("Continue to booking") { }.buttonStyle(.borderedProminent).tint(DMTheme.green).disabled(selectedSlot == nil).frame(maxWidth: .infinity)
-                }.premiumSurface()
-                VStack(alignment: .leading, spacing: 10) { Text("Message provider").font(.headline); TextField("Ask about scope, access, timing or equipment", text: $message, axis: .vertical).padding(12).background(DMTheme.cardMuted).clipShape(RoundedRectangle(cornerRadius: 14)); Button("Send message") { message = "" }.buttonStyle(.borderedProminent).tint(DMTheme.green).disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) }.premiumSurface()
+                }.v4Surface()
+                VStack(alignment: .leading, spacing: 10) { Text("Message provider").font(.headline); TextField("Ask about scope, access, timing or equipment", text: $message, axis: .vertical).padding(12).background(DMTheme.cardMuted).clipShape(RoundedRectangle(cornerRadius: 14)); Button("Send message") { message = "" }.buttonStyle(.borderedProminent).tint(DMTheme.green).disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) }.v4Surface()
                 Text("Provider listings shown in backend-free TestFlight mode are sample marketplace data. Live listings, availability, booking and chat will come from the connected provider platform.").font(.caption).foregroundStyle(.secondary)
             }.padding(16).padding(.bottom, 24)
         }.background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea()).navigationTitle(provider.name).navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private extension View {
+    func v4Surface() -> some View {
+        self
+            .padding(16)
+            .background(DMTheme.card)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(DMTheme.border, lineWidth: 1))
     }
 }

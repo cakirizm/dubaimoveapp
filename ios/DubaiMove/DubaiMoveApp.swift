@@ -62,7 +62,7 @@ struct FunctionalProductionEntryView: View {
         } else if !onboardingCompleted {
             OnboardingView(completed: $onboardingCompleted)
         } else {
-            PremiumRootTabViewV4()
+            PremiumRootTabViewV5()
         }
     }
 

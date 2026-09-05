@@ -1,5 +1,38 @@
 import SwiftUI
 
+struct ProductionEntryView: View {
+    @EnvironmentObject private var session: SessionStore
+    @EnvironmentObject private var live: ConnectedDataStore
+    @EnvironmentObject private var appState: AppState
+    @AppStorage("dubaimove.onboarding.completed") private var onboardingCompleted = false
+
+    var body: some View {
+        Group {
+            if APIConfiguration.isConnectedMode {
+                if !session.didAttemptRestore {
+                    ProgressView("Restoring secure session…").task { await session.restore() }
+                } else if !session.isAuthenticated {
+                    ConnectedAuthView()
+                } else if !onboardingCompleted {
+                    OnboardingView(completed: $onboardingCompleted)
+                } else {
+                    ConnectedRootTabView().task { await refreshLiveData() }
+                }
+            } else if onboardingCompleted {
+                RootTabView()
+            } else {
+                OnboardingView(completed: $onboardingCompleted)
+            }
+        }
+    }
+
+    private func refreshLiveData() async {
+        await live.refresh()
+        if let readiness = live.moves.first?.readiness { appState.readiness = readiness }
+        await PushRegistration.request()
+    }
+}
+
 struct ConnectedRootTabView: View {
     @EnvironmentObject var state: AppState
     var body: some View {

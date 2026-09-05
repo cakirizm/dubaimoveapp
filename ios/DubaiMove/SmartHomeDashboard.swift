@@ -133,7 +133,7 @@ struct SmartHomeDashboardView: View {
                     .padding(.trailing, 14)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
 
-                NavigationLink(destination: PremiumJourneyView()) {
+                NavigationLink(destination: GuidedMovePlanView()) {
                     HStack(spacing: 9) {
                         Text("Start My Move").lineLimit(1)
                         Image(systemName: "arrow.right")
@@ -286,7 +286,7 @@ struct SmartHomeDashboardView: View {
                     .clipShape(Capsule())
             }
 
-            NavigationLink(destination: PremiumJourneyView()) {
+            NavigationLink(destination: GuidedMovePlanView()) {
                 HStack(spacing: 14) {
                     Image(systemName: nextStepItem?.icon ?? "checkmark.circle.fill")
                         .font(.title2.bold())
@@ -319,10 +319,10 @@ struct SmartHomeDashboardView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Official essentials").font(.title2.bold())
             HStack(spacing: 12) {
-                NavigationLink(destination: PremiumJourneyView()) {
+                NavigationLink(destination: EjariGuidedView()) {
                     officialCard(title: "Ejari", subtitle: "Dubai Land Department", icon: "doc.text.fill", colors: [DMTheme.greenDeep, DMTheme.green])
                 }.buttonStyle(.plain)
-                NavigationLink(destination: PremiumJourneyView()) {
+                NavigationLink(destination: DewaGuidedView()) {
                     officialCard(title: "DEWA", subtitle: "Move-In · Move-To · Move-Out", icon: "bolt.fill", colors: [.blue, .cyan])
                 }.buttonStyle(.plain)
             }

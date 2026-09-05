@@ -11,6 +11,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare app icon
+        run: |
+          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Build DubaiMove
         run: |
           xcodebuild \

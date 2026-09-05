@@ -13,6 +13,7 @@ struct DubaiMoveApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var session = SessionStore()
     @StateObject private var connectedData = ConnectedDataStore()
+    @StateObject private var localAccount = LocalAccountStore()
 
     var body: some Scene {
         WindowGroup {
@@ -20,22 +21,79 @@ struct DubaiMoveApp: App {
                 .environmentObject(appState)
                 .environmentObject(session)
                 .environmentObject(connectedData)
+                .environmentObject(localAccount)
         }
     }
 }
 
 struct FunctionalProductionEntryView: View {
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var session: SessionStore
+    @EnvironmentObject private var connectedData: ConnectedDataStore
+    @EnvironmentObject private var localAccount: LocalAccountStore
     @AppStorage("dubaimove.onboarding.completed") private var onboardingCompleted = false
+    @State private var launchFinished = false
 
     var body: some View {
-        Group {
-            if APIConfiguration.isConnectedMode {
-                ProductionEntryView()
-            } else if onboardingCompleted {
-                FunctionalV2RootTabView()
+        ZStack {
+            if !launchFinished {
+                BrandLaunchView()
+                    .transition(.opacity)
+            } else if APIConfiguration.isConnectedMode {
+                connectedEntry
+                    .transition(.opacity)
             } else {
-                OnboardingView(completed: $onboardingCompleted)
+                localEntry
+                    .transition(.opacity)
             }
+        }
+        .animation(.easeInOut(duration: 0.38), value: launchFinished)
+        .task {
+            guard !launchFinished else { return }
+            try? await Task.sleep(for: .milliseconds(2350))
+            launchFinished = true
+        }
+    }
+
+    @ViewBuilder
+    private var localEntry: some View {
+        if !localAccount.isAuthenticated {
+            BrandedEntryFlow(connected: false)
+        } else if !onboardingCompleted {
+            OnboardingView(completed: $onboardingCompleted)
+        } else {
+            FunctionalV2RootTabView()
+        }
+    }
+
+    @ViewBuilder
+    private var connectedEntry: some View {
+        if !session.didAttemptRestore {
+            VStack(spacing: 18) {
+                Image("BrandLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 110, height: 110)
+                ProgressView("Restoring your Dubai Move account…")
+                    .tint(DMTheme.green)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(DMTheme.page.ignoresSafeArea())
+            .task { await session.restore() }
+        } else if !session.isAuthenticated {
+            BrandedEntryFlow(connected: true)
+        } else if !onboardingCompleted {
+            OnboardingView(completed: $onboardingCompleted)
+        } else {
+            RootTabView()
+                .task { await refreshConnectedData() }
+        }
+    }
+
+    private func refreshConnectedData() async {
+        await connectedData.refresh()
+        if let readiness = connectedData.moves.first?.readiness {
+            appState.readiness = readiness
         }
     }
 }

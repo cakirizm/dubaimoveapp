@@ -14,5 +14,6 @@
     <key>UILaunchScreen</key><dict/>
     <key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string></array>
     <key>NSLocationWhenInUseUsageDescription</key><string>Dubai Move uses location only when you choose to select or view move addresses and map-based move operations.</string>
+    <key>DUBAI_MOVE_API_BASE_URL</key><string>$(DUBAI_MOVE_API_BASE_URL)</string>
 </dict>
 </plist>

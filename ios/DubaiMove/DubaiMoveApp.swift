@@ -12,15 +12,10 @@ struct DubaiMoveApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ConnectedRootView()
+            ProductionEntryView()
                 .environmentObject(appState)
                 .environmentObject(session)
                 .environmentObject(connectedData)
-                .task {
-                    if APIConfiguration.isConnectedMode {
-                        await PushRegistration.request()
-                    }
-                }
         }
     }
 }

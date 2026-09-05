@@ -14,7 +14,9 @@ struct RootTabView: View {
     var body: some View {
         TabView(selection: $state.selectedTab) {
             NavigationStack { HomeView() }.tag(MainTab.home).tabItem { Label("Home", systemImage: MainTab.home.icon) }
-            NavigationStack { MyMoveView() }.tag(MainTab.move).tabItem { Label("My Move", systemImage: MainTab.move.icon) }
+            NavigationStack {
+                if APIConfiguration.isConnectedMode { ConnectedMyMoveView() } else { MyMoveView() }
+            }.tag(MainTab.move).tabItem { Label("My Move", systemImage: MainTab.move.icon) }
             NavigationStack {
                 if APIConfiguration.isConnectedMode { ConnectedServicesView() } else { ServicesView() }
             }.tag(MainTab.services).tabItem { Label("Services", systemImage: MainTab.services.icon) }

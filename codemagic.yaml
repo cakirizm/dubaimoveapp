@@ -15,6 +15,9 @@ workflows:
         - $HOME/Library/Caches/org.swift.swiftpm
         - $HOME/Library/Developer/Xcode/DerivedData
     scripts:
+      - name: Prepare app icon
+        script: |
+          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Show Xcode version
         script: xcodebuild -version
       - name: Validate project and scheme
@@ -37,6 +40,47 @@ workflows:
       - /tmp/dubaimove-simulator-build.log
       - /tmp/dubaimove-build-settings.txt
 
+  dubai-move-testflight:
+    name: Dubai Move TestFlight Internal
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+      groups:
+        - appstore_credentials
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.dubaimove.app
+      vars:
+        XCODE_PROJECT: "ios/DubaiMove.xcodeproj"
+        XCODE_SCHEME: "DubaiMove"
+        BUNDLE_ID: "com.dubaimove.app"
+    scripts:
+      - name: Prepare TestFlight app icon
+        script: |
+          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
+      - name: Apply signing profiles
+        script: xcode-project use-profiles
+      - name: Set TestFlight build number
+        script: |
+          sed -i '' -E "s/CURRENT_PROJECT_VERSION = [0-9]+;/CURRENT_PROJECT_VERSION = ${BUILD_NUMBER};/g" ios/DubaiMove.xcodeproj/project.pbxproj
+      - name: Build signed IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME" \
+            --archive-xcargs "DUBAI_MOVE_API_BASE_URL=${DUBAI_MOVE_API_BASE_URL:-}"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: false
+
   dubai-move-app-store:
     name: Dubai Move App Store Archive
     max_build_duration: 60
@@ -50,6 +94,9 @@ workflows:
         XCODE_PROJECT: "ios/DubaiMove.xcodeproj"
         XCODE_SCHEME: "DubaiMove"
     scripts:
+      - name: Prepare app icon
+        script: |
+          base64 --decode ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png.b64 > ios/DubaiMove/Assets.xcassets/AppIcon.appiconset/AppIcon1024.png
       - name: Apply signing profiles
         script: xcode-project use-profiles
       - name: Build IPA

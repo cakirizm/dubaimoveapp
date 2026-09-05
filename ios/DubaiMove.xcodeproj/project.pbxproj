@@ -12,6 +12,7 @@
 		A10000000000000000000004 /* OnboardingAndMore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* OnboardingAndMore.swift */; };
 		A10000000000000000000005 /* OriginalAppCoverage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* OriginalAppCoverage.swift */; };
 		A10000000000000000000006 /* NetworkLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* NetworkLayer.swift */; };
+		A10000000000000000000007 /* ConnectedUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* ConnectedUI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		B10000000000000000000006 /* DubaiMove.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DubaiMove.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10000000000000000000007 /* OriginalAppCoverage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OriginalAppCoverage.swift; sourceTree = "<group>"; };
 		B10000000000000000000008 /* NetworkLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkLayer.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* ConnectedUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectedUI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,7 +33,7 @@
 
 /* Begin PBXGroup section */
 		D10000000000000000000001 = {isa = PBXGroup; children = (D10000000000000000000002 /* DubaiMove */, D10000000000000000000003 /* Products */); sourceTree = "<group>"; };
-		D10000000000000000000002 /* DubaiMove */ = {isa = PBXGroup; path = DubaiMove; sourceTree = "<group>"; children = (B10000000000000000000001, B10000000000000000000002, B10000000000000000000003, B10000000000000000000004, B10000000000000000000007, B10000000000000000000008, B10000000000000000000005); };
+		D10000000000000000000002 /* DubaiMove */ = {isa = PBXGroup; path = DubaiMove; sourceTree = "<group>"; children = (B10000000000000000000001, B10000000000000000000002, B10000000000000000000003, B10000000000000000000004, B10000000000000000000007, B10000000000000000000008, B10000000000000000000009, B10000000000000000000005); };
 		D10000000000000000000003 /* Products */ = {isa = PBXGroup; children = (B10000000000000000000006 /* DubaiMove.app */); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
@@ -48,7 +50,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		C10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, A10000000000000000000004, A10000000000000000000005, A10000000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
+		C10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, A10000000000000000000004, A10000000000000000000005, A10000000000000000000006, A10000000000000000000007); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */

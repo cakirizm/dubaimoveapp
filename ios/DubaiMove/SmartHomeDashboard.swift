@@ -7,6 +7,8 @@ struct SmartHomeDashboardView: View {
     @AppStorage("dubaimove.v2.newArea") private var newArea = ""
     @AppStorage("dubaimove.v2.moveDate") private var moveDateEpoch = Date().addingTimeInterval(86400 * 21).timeIntervalSince1970
 
+    @State private var appeared = false
+
     private var plan: PremiumMovePlan { PremiumMovePlan.plan(for: moveKind) }
 
     private var readiness: Int {
@@ -25,15 +27,14 @@ struct SmartHomeDashboardView: View {
 
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(alignment: .leading, spacing: 20) {
-                    brandHeader(width: contentWidth)
-                    heroCard(width: contentWidth)
+                    premiumHero(width: contentWidth)
                     quickActions(width: contentWidth)
                     nextStep
                     officialEssentials(width: contentWidth)
                 }
                 .frame(width: contentWidth, alignment: .leading)
                 .padding(.horizontal, horizontalPadding)
-                .padding(.top, 10)
+                .padding(.top, 8)
                 .padding(.bottom, 110)
             }
             .frame(width: proxy.size.width)
@@ -41,64 +42,23 @@ struct SmartHomeDashboardView: View {
             .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
         }
         .navigationBarTitleDisplayMode(.inline)
-        .task { state.readiness = readiness }
-    }
-
-    private func brandHeader(width: CGFloat) -> some View {
-        HStack(spacing: 13) {
-            Image("BrandLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 64, height: 64)
-                .fixedSize()
-
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text("Dubai")
-                        .font(.system(size: 34, weight: .black, design: .rounded))
-                        .kerning(-1.2)
-                        .foregroundStyle(DMTheme.ink)
-                    Text("Move")
-                        .font(.system(size: 34, weight: .black, design: .rounded))
-                        .kerning(-1.0)
-                        .foregroundStyle(DMTheme.greenDeep)
-                }
-                .lineLimit(1)
-                .minimumScaleFactor(0.82)
-
-                Text("Your move, organized.")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
-            .layoutPriority(1)
-
-            Spacer(minLength: 6)
-
-            NavigationLink(destination: FunctionalV2MoreView()) {
-                ZStack {
-                    Circle().fill(.white)
-                    Circle().stroke(Color.black.opacity(0.06), lineWidth: 1)
-                    Image(systemName: "person.crop.circle.fill")
-                        .font(.system(size: 30, weight: .semibold))
-                        .foregroundStyle(DMTheme.greenDeep)
-                }
-                .frame(width: 52, height: 52)
-                .shadow(color: .black.opacity(0.07), radius: 10, y: 4)
-            }
-            .buttonStyle(.plain)
-            .fixedSize()
+        .task {
+            state.readiness = readiness
+            guard !appeared else { return }
+            withAnimation(.easeOut(duration: 0.52)) { appeared = true }
         }
-        .frame(width: width, alignment: .leading)
     }
 
-    private func heroCard(width: CGFloat) -> some View {
+    private func premiumHero(width: CGFloat) -> some View {
         let compact = width < 370
-        let heroHeight: CGFloat = compact ? 398 : 420
-        let summaryWidth = min(max(width * 0.43, 146), 174)
-        let ctaWidth = min(max(width * 0.47, 166), 194)
+        let heroHeight: CGFloat = compact ? 520 : 560
+        let logoSize: CGFloat = compact ? 58 : 64
+        let titleWidth = width * (compact ? 0.72 : 0.69)
+        let ctaWidth = min(max(width * 0.54, 190), 228)
+        let infoWidth = min(max(width * 0.38, 132), 158)
 
         return ZStack {
-            AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&q=92")) { phase in
+            AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1800&q=94")) { phase in
                 switch phase {
                 case .success(let image):
                     image
@@ -108,7 +68,11 @@ struct SmartHomeDashboardView: View {
                         .clipped()
                 default:
                     LinearGradient(
-                        colors: [Color(red: 0.91, green: 0.97, blue: 0.99), Color(red: 1.0, green: 0.94, blue: 0.85)],
+                        colors: [
+                            Color(red: 0.93, green: 0.98, blue: 1.00),
+                            Color(red: 0.98, green: 0.97, blue: 0.91),
+                            Color(red: 1.00, green: 0.92, blue: 0.78)
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -119,152 +83,185 @@ struct SmartHomeDashboardView: View {
 
             LinearGradient(
                 stops: [
-                    .init(color: .white.opacity(0.96), location: 0.00),
-                    .init(color: .white.opacity(0.80), location: 0.34),
-                    .init(color: .white.opacity(0.22), location: 0.61),
-                    .init(color: .clear, location: 0.82)
+                    .init(color: .white.opacity(0.95), location: 0.00),
+                    .init(color: .white.opacity(0.80), location: 0.24),
+                    .init(color: .white.opacity(0.36), location: 0.47),
+                    .init(color: .clear, location: 0.72)
                 ],
                 startPoint: .leading,
                 endPoint: .trailing
             )
 
             LinearGradient(
-                colors: [.clear, .black.opacity(0.04), .black.opacity(0.10)],
+                colors: [.white.opacity(0.30), .clear, .black.opacity(0.12)],
                 startPoint: .top,
                 endPoint: .bottom
             )
 
-            VStack(alignment: .leading, spacing: 11) {
-                Text(heroTitle)
-                    .font(.system(size: compact ? 31 : 35, weight: .black, design: .rounded))
-                    .kerning(-0.9)
-                    .foregroundStyle(Color(red: 0.01, green: 0.16, blue: 0.13))
-                    .lineLimit(3)
-                    .minimumScaleFactor(0.80)
-                    .frame(width: width * (compact ? 0.66 : 0.62), alignment: .leading)
+            VStack(spacing: 0) {
+                HStack(spacing: 12) {
+                    Image("BrandLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: logoSize, height: logoSize)
+                        .scaleEffect(appeared ? 1 : 0.96)
+                        .opacity(appeared ? 1 : 0)
 
-                Text("All your move tasks, services and official steps in one place.")
-                    .font(.system(size: compact ? 14 : 16, weight: .medium))
-                    .foregroundStyle(DMTheme.ink.opacity(0.82))
+                    VStack(alignment: .leading, spacing: 1) {
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text("Dubai")
+                                .font(.system(size: compact ? 31 : 36, weight: .black, design: .serif))
+                                .foregroundStyle(Color(red: 0.02, green: 0.10, blue: 0.10))
+                                .kerning(-1.1)
+                            Text("Move")
+                                .font(.system(size: compact ? 31 : 36, weight: .bold, design: .serif))
+                                .italic()
+                                .foregroundStyle(DMTheme.greenDeep)
+                                .kerning(-1.2)
+                        }
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.80)
+
+                        Text("Your move, organized.")
+                            .font(.system(size: compact ? 13 : 14, weight: .medium))
+                            .foregroundStyle(Color.secondary.opacity(0.92))
+                    }
+                    .layoutPriority(1)
+                    .offset(y: appeared ? 0 : 8)
+                    .opacity(appeared ? 1 : 0)
+
+                    Spacer(minLength: 8)
+
+                    NavigationLink(destination: FunctionalV2MoreView()) {
+                        ZStack {
+                            Circle().fill(.white.opacity(0.92))
+                            Circle().stroke(.white.opacity(0.85), lineWidth: 1)
+                            Image(systemName: "person.crop.circle.fill")
+                                .font(.system(size: compact ? 28 : 30, weight: .semibold))
+                                .foregroundStyle(DMTheme.greenDeep)
+                        }
+                        .frame(width: compact ? 50 : 54, height: compact ? 50 : 54)
+                        .shadow(color: .black.opacity(0.09), radius: 12, y: 5)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 18)
+                .padding(.top, 18)
+
+                Spacer().frame(height: compact ? 48 : 54)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("A Smoother")
+                        .foregroundStyle(Color(red: 0.02, green: 0.08, blue: 0.09))
+                    + Text("\nNew Chapter")
+                        .foregroundStyle(DMTheme.greenDeep)
+                    + Text("\nin Dubai")
+                        .foregroundStyle(Color(red: 0.02, green: 0.08, blue: 0.09))
+                }
+                .font(.system(size: compact ? 38 : 43, weight: .black, design: .serif))
+                .kerning(-1.2)
+                .lineSpacing(-2)
+                .frame(width: titleWidth, alignment: .leading)
+                .offset(x: appeared ? 0 : -10, y: appeared ? 0 : 10)
+                .opacity(appeared ? 1 : 0)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 18)
+
+                Text("Everything you need for a confident move in or out of Dubai.")
+                    .font(.system(size: compact ? 15 : 16, weight: .medium))
+                    .foregroundStyle(DMTheme.ink.opacity(0.72))
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(width: width * 0.61, alignment: .leading)
+                    .frame(width: width * 0.68, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 18)
+                    .padding(.top, 14)
+                    .offset(y: appeared ? 0 : 10)
+                    .opacity(appeared ? 1 : 0)
 
                 Spacer()
-            }
-            .padding(.leading, 20)
-            .padding(.top, 24)
-            .padding(.trailing, 16)
-            .padding(.bottom, 18)
-            .frame(width: width, height: heroHeight, alignment: .topLeading)
 
-            weatherChip
-                .scaleEffect(compact ? 0.90 : 1, anchor: .topTrailing)
-                .padding(.top, 18)
-                .padding(.trailing, 14)
-                .frame(width: width, height: heroHeight, alignment: .topTrailing)
+                HStack(alignment: .bottom, spacing: 10) {
+                    NavigationLink(destination: SmartMoveCommandCenterView()) {
+                        HStack(spacing: 12) {
+                            Text("Start My Move")
+                                .lineLimit(1)
+                            Spacer(minLength: 4)
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 17, weight: .bold))
+                                .frame(width: 40, height: 40)
+                                .background(.white.opacity(0.16))
+                                .clipShape(Circle())
+                        }
+                        .font(.system(size: compact ? 17 : 18, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.leading, 18)
+                        .padding(.trailing, 8)
+                        .frame(width: ctaWidth, height: 62)
+                        .background(
+                            LinearGradient(
+                                colors: [DMTheme.greenDeep, DMTheme.green],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 1))
+                        .shadow(color: DMTheme.greenDeep.opacity(0.28), radius: 14, y: 6)
+                    }
+                    .buttonStyle(.plain)
 
-            NavigationLink(destination: SmartMoveCommandCenterView()) {
-                HStack(spacing: 9) {
-                    Text("Start My Move").lineLimit(1)
-                    Image(systemName: "arrow.right")
+                    moveInfoCard(width: infoWidth)
                 }
-                .font(.system(size: compact ? 16 : 17, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: ctaWidth, height: 60)
-                .background(
-                    LinearGradient(colors: [DMTheme.greenDeep, DMTheme.green], startPoint: .leading, endPoint: .trailing)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 19, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 19).stroke(.white.opacity(0.12), lineWidth: 1))
-                .shadow(color: DMTheme.greenDeep.opacity(0.25), radius: 12, y: 5)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 16)
+                .offset(y: appeared ? 0 : 12)
+                .opacity(appeared ? 1 : 0)
             }
-            .buttonStyle(.plain)
-            .padding(.leading, 18)
-            .padding(.bottom, 18)
-            .frame(width: width, height: heroHeight, alignment: .bottomLeading)
-
-            moveSummaryCard(width: summaryWidth)
-                .padding(.trailing, 14)
-                .padding(.bottom, 14)
-                .frame(width: width, height: heroHeight, alignment: .bottomTrailing)
+            .frame(width: width, height: heroHeight)
         }
         .frame(width: width, height: heroHeight)
-        .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.white.opacity(0.55), lineWidth: 1))
-        .shadow(color: .black.opacity(0.10), radius: 18, y: 9)
-        .contentShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 30).stroke(.white.opacity(0.66), lineWidth: 1))
+        .shadow(color: .black.opacity(0.11), radius: 20, y: 9)
     }
 
-    private var weatherChip: some View {
-        HStack(spacing: 9) {
-            Image(systemName: "sun.max.fill")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 1) {
-                Text("32°C")
-                    .font(.system(size: 15, weight: .heavy))
-                    .foregroundStyle(DMTheme.ink)
+    private func moveInfoCard(width: CGFloat) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "mappin.and.ellipse")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(DMTheme.greenDeep)
+                .frame(width: 34, height: 34)
+                .background(DMTheme.mint)
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Dubai")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(DMTheme.ink)
+                Text("A smoother move is just a tap away.")
+                    .font(.system(size: 9.5, weight: .medium))
                     .foregroundStyle(.secondary)
+                    .lineLimit(3)
             }
-        }
-        .padding(.horizontal, 13)
-        .padding(.vertical, 11)
-        .background(.ultraThinMaterial)
-        .background(.white.opacity(0.70))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(.white.opacity(0.75), lineWidth: 1))
-        .shadow(color: .black.opacity(0.07), radius: 10, y: 4)
-    }
 
-    private func moveSummaryCard(width: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 11) {
-            moveSummaryRow(icon: "house.fill", tint: DMTheme.green, label: "Current Home", value: currentHome)
-            Divider().opacity(0.45)
-            moveSummaryRow(icon: "mappin.circle.fill", tint: .red, label: "New Home", value: newHome)
-            Divider().opacity(0.45)
-            moveSummaryRow(icon: "calendar", tint: DMTheme.green, label: "Move Date", value: Date(timeIntervalSince1970: moveDateEpoch).formatted(date: .abbreviated, time: .omitted))
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(DMTheme.ink.opacity(0.7))
         }
-        .padding(13)
-        .frame(width: width)
+        .padding(11)
+        .frame(width: width, minHeight: 78)
         .background(.ultraThinMaterial)
-        .background(.white.opacity(0.76))
+        .background(.white.opacity(0.78))
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22).stroke(.white.opacity(0.82), lineWidth: 1))
-        .shadow(color: .black.opacity(0.10), radius: 13, y: 5)
-    }
-
-    private func moveSummaryRow(icon: String, tint: Color, label: String, value: String) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(tint)
-                .frame(width: 22, height: 22)
-                .background(tint.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 7))
-            VStack(alignment: .leading, spacing: 1) {
-                Text(label)
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                Text(value)
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(DMTheme.ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.70)
-            }
-        }
+        .shadow(color: .black.opacity(0.09), radius: 12, y: 5)
     }
 
     private func quickActions(width: CGFloat) -> some View {
         let spacing: CGFloat = 12
         let cardWidth = max(0, (width - spacing) / 2)
-        let columns = [
-            GridItem(.fixed(cardWidth), spacing: spacing),
-            GridItem(.fixed(cardWidth), spacing: spacing)
-        ]
+        let columns = [GridItem(.fixed(cardWidth), spacing: spacing), GridItem(.fixed(cardWidth), spacing: spacing)]
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -289,7 +286,6 @@ struct SmartHomeDashboardView: View {
                 quickAction("Buy Supplies", "Boxes, packing...", "shippingbox.fill", .blue, width: cardWidth) { state.selectedTab = .services }
                 quickAction("Edit Move", "Areas & date", "building.2.fill", .purple, width: cardWidth) { state.selectedTab = .move }
             }
-            .frame(width: width)
         }
         .frame(width: width, alignment: .leading)
     }
@@ -314,7 +310,6 @@ struct SmartHomeDashboardView: View {
                         .font(.system(size: 10.5, weight: .medium))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
-                        .minimumScaleFactor(0.80)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -362,7 +357,8 @@ struct SmartHomeDashboardView: View {
                             .lineLimit(3)
                     }
                     Spacer(minLength: 4)
-                    Image(systemName: "chevron.right").foregroundStyle(.secondary)
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(.secondary)
                 }
                 .padding(16)
                 .background(.white)
@@ -409,7 +405,6 @@ struct SmartHomeDashboardView: View {
                 }
             }
             .buttonStyle(.plain)
-            .frame(width: width)
         }
         .frame(width: width, alignment: .leading)
     }
@@ -440,14 +435,5 @@ struct SmartHomeDashboardView: View {
 
     private var nextStepItem: PremiumMoveStep? {
         plan.steps.first { !UserDefaults.standard.bool(forKey: $0.storageKey) }
-    }
-
-    private var heroTitle: String {
-        switch moveKind {
-        case LocalMoveKind.toDubai.rawValue: return "Move to Dubai with confidence"
-        case LocalMoveKind.leavingDubai.rawValue: return "Leave Dubai with confidence"
-        case LocalMoveKind.serviceOnly.rawValue: return "Get your home sorted with confidence"
-        default: return "Move across Dubai with confidence"
-        }
     }
 }

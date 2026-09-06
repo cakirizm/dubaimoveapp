@@ -261,7 +261,8 @@ struct SmartHomeDashboardView: View {
         }
         .padding(.horizontal, 9)
         .padding(.vertical, 10)
-        .frame(width: width, minHeight: 62)
+        .frame(width: width)
+        .frame(minHeight: 62)
         .background(.ultraThinMaterial)
         .background(.white.opacity(0.82))
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))

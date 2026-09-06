@@ -5,10 +5,18 @@ import UniformTypeIdentifiers
 struct SmartMoveCommandCenterView: View {
     @AppStorage("dubaimove.v2.moveKind") private var moveKind = LocalMoveKind.withinDubai.rawValue
     @AppStorage("dubaimove.v2.moveDate") private var moveDateEpoch = Date().addingTimeInterval(86400 * 21).timeIntervalSince1970
+    @AppStorage("dubaimove.v2.currentArea") private var currentArea = ""
+    @AppStorage("dubaimove.v2.newArea") private var newArea = ""
     @AppStorage("dubaimove.intelligence.homeType") private var homeType = "Apartment"
     @AppStorage("dubaimove.intelligence.occupancy") private var occupancy = "Tenant"
     @AppStorage("dubaimove.intelligence.internet") private var internetProvider = "Not sure"
     @AppStorage("dubaimove.guide.cooling.arrangement") private var coolingArrangement = "Not sure"
+    @AppStorage("dubaimove.property.building") private var building = ""
+    @AppStorage("dubaimove.property.permit") private var permitStatus = "Unknown"
+    @AppStorage("dubaimove.property.lift") private var liftStatus = "Not checked"
+    @AppStorage("dubaimove.appointment.mover.confirmed") private var moverConfirmed = false
+    @AppStorage("dubaimove.appointment.internet.confirmed") private var internetConfirmed = false
+    @AppStorage("dubaimove.appointment.handover.confirmed") private var handoverConfirmed = false
 
     private var plan: PremiumMovePlan { PremiumMovePlan.plan(for: moveKind) }
     private var daysToMove: Int {
@@ -23,6 +31,14 @@ struct SmartMoveCommandCenterView: View {
     private var blockers: [PremiumMoveStep] {
         steps.filter { !done($0) && ($0.target == .dewa || $0.target == .building || ($0.target == .ejari && occupancy == "Tenant")) }
     }
+    private var propertyReady: Bool {
+        !building.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        permitStatus != "Unknown" &&
+        liftStatus != "Not checked"
+    }
+    private var confirmedAppointments: Int {
+        [moverConfirmed, internetConfirmed, handoverConfirmed].filter { $0 }.count
+    }
 
     var body: some View {
         ScrollView {
@@ -31,6 +47,7 @@ struct SmartMoveCommandCenterView: View {
                 profile
                 routeResult
                 status
+                moveSnapshot
                 now
                 tools
                 Text("Your personalized timeline").font(.title2.bold())
@@ -60,7 +77,7 @@ struct SmartMoveCommandCenterView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("YOUR MOVE COMMAND CENTER").font(.caption2.bold()).tracking(1.3)
             Text(daysToMove >= 0 ? "\(daysToMove) days to move day" : "Move day passed").font(.system(size: 30, weight: .heavy, design: .rounded))
-            Text("Tenant/owner, home type, cooling, internet provider and move date now change the route you see.")
+            Text("Plan the property, appointments, utilities, providers, proof and move day from one clear place.")
         }.foregroundStyle(.white).padding(20).frame(maxWidth: .infinity, minHeight: 190, alignment: .bottomLeading)
             .background(LinearGradient(colors: [DMTheme.greenDeep, DMTheme.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing))
             .clipShape(RoundedRectangle(cornerRadius: 28))
@@ -69,6 +86,25 @@ struct SmartMoveCommandCenterView: View {
     private var profile: some View {
         VStack(alignment: .leading, spacing: 10) {
             Label("Personalize my route", systemImage: "slider.horizontal.3").font(.headline)
+
+            DatePicker(
+                "Move date",
+                selection: Binding(
+                    get: { Date(timeIntervalSince1970: moveDateEpoch) },
+                    set: { moveDateEpoch = $0.timeIntervalSince1970 }
+                ),
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.compact)
+
+            HStack(spacing: 10) {
+                TextField("Current area", text: $currentArea)
+                    .textFieldStyle(.roundedBorder)
+                Image(systemName: "arrow.right").foregroundStyle(.secondary)
+                TextField("New area", text: $newArea)
+                    .textFieldStyle(.roundedBorder)
+            }
+
             Picker("Occupancy", selection: $occupancy) { Text("Tenant").tag("Tenant"); Text("Owner").tag("Owner") }.pickerStyle(.segmented)
             Picker("Home", selection: $homeType) { Text("Apartment").tag("Apartment"); Text("Villa").tag("Villa") }.pickerStyle(.segmented)
             Text("Home internet").font(.caption.bold()).foregroundStyle(.secondary)
@@ -104,6 +140,60 @@ struct SmartMoveCommandCenterView: View {
         }.foregroundStyle(blockers.isEmpty ? DMTheme.green : .red).auditSurface()
     }
 
+    private var moveSnapshot: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Move readiness").font(.title2.bold())
+
+            NavigationLink(destination: PropertyMoveProfileView()) {
+                snapshotRow(
+                    title: "Property & access",
+                    subtitle: propertyReady ? "Building, permit and lift details captured" : "Add building, permit and lift details",
+                    icon: propertyReady ? "checkmark.circle.fill" : "building.2.fill",
+                    tint: propertyReady ? DMTheme.green : .orange
+                )
+            }
+
+            NavigationLink(destination: MoveAppointmentsHubView()) {
+                snapshotRow(
+                    title: "Appointments",
+                    subtitle: "\(confirmedAppointments) of 3 key appointments confirmed",
+                    icon: confirmedAppointments == 3 ? "checkmark.circle.fill" : "calendar.badge.clock",
+                    tint: confirmedAppointments == 3 ? DMTheme.green : .purple
+                )
+            }
+
+            NavigationLink(destination: MoveContactsHubView()) {
+                snapshotRow(
+                    title: "Move contacts",
+                    subtitle: "Landlord, management, mover, internet and cooling contacts",
+                    icon: "person.crop.circle.badge.checkmark",
+                    tint: .blue
+                )
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func snapshotRow(title: String, subtitle: String, icon: String, tint: Color) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title3.bold())
+                .foregroundStyle(tint)
+                .frame(width: 42, height: 42)
+                .background(tint.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 13))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.headline).foregroundStyle(DMTheme.ink)
+                Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            }
+            Spacer()
+            Image(systemName: "chevron.right").foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+    }
+
     private var now: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("What should I do now?", systemImage: "sun.max.fill").font(.headline).foregroundStyle(.orange)
@@ -117,17 +207,36 @@ struct SmartMoveCommandCenterView: View {
     }
 
     private var tools: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            NavigationLink(destination: MoveDayModeView()) { tool("Move Day", "figure.walk.motion", .orange) }
-            NavigationLink(destination: RefundTrackerView()) { tool("Refunds", "banknote.fill", .mint) }
-            NavigationLink(destination: FunctionalV2DocumentsView()) { tool("Documents", "folder.fill", .blue) }
-            NavigationLink(destination: ServicesMarketplaceV6View()) { tool("Get help", "person.2.fill", .purple) }
-        }.buttonStyle(.plain)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Move operations").font(.title2.bold())
+            Text("The practical tools you need before, during and after move day.")
+                .font(.caption).foregroundStyle(.secondary)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                NavigationLink(destination: PropertyMoveProfileView()) { tool("Property", "building.2.fill", .orange) }
+                NavigationLink(destination: MoveAppointmentsHubView()) { tool("Appointments", "calendar.badge.clock", .purple) }
+                NavigationLink(destination: MoveContactsHubView()) { tool("Contacts", "person.2.fill", .blue) }
+                NavigationLink(destination: EnhancedMoveDayModeView()) { tool("Move Day", "figure.walk.motion", .orange) }
+                NavigationLink(destination: MoveRescueCenterView()) { tool("Need help?", "lifepreserver.fill", .red) }
+                NavigationLink(destination: RefundTrackerView()) { tool("Refunds", "banknote.fill", .mint) }
+                NavigationLink(destination: FunctionalV2DocumentsView()) { tool("Documents", "folder.fill", .blue) }
+                NavigationLink(destination: ServicesMarketplaceV6View()) { tool("Get a provider", "person.crop.square.filled.and.at.rectangle", .purple) }
+            }
+            .buttonStyle(.plain)
+        }
     }
+
     private func tool(_ title: String, _ icon: String, _ color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 8) { Image(systemName: icon).font(.title2).foregroundStyle(color); Text(title).font(.headline).foregroundStyle(DMTheme.ink) }
-            .padding(14).frame(maxWidth: .infinity, minHeight: 90, alignment: .leading).background(.white).clipShape(RoundedRectangle(cornerRadius: 18))
+        VStack(alignment: .leading, spacing: 8) {
+            Image(systemName: icon).font(.title2).foregroundStyle(color)
+            Text(title).font(.headline).foregroundStyle(DMTheme.ink).lineLimit(2)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 90, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 18))
     }
+
     private func done(_ s: PremiumMoveStep) -> Bool { UserDefaults.standard.bool(forKey: s.storageKey) }
     private func lead(_ t: PremiumMoveTarget) -> Int {
         switch t { case .documents,.setup: return 30; case .ejari: return 21; case .building,.telecom,.leaving: return 14; case .cooling,.services: return 10; case .dewa: return 7; case .inspection: return 3; case .handover: return 1; case .money: return 0 }

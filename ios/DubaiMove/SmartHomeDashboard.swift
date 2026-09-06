@@ -250,7 +250,8 @@ struct SmartHomeDashboardView: View {
                 .foregroundStyle(DMTheme.ink.opacity(0.7))
         }
         .padding(11)
-        .frame(width: width, minHeight: 78)
+        .frame(width: width)
+        .frame(minHeight: 78)
         .background(.ultraThinMaterial)
         .background(.white.opacity(0.78))
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))

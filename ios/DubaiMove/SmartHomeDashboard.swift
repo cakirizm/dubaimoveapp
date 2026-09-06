@@ -54,8 +54,11 @@ struct SmartHomeDashboardView: View {
         let heroHeight: CGFloat = compact ? 520 : 560
         let logoSize: CGFloat = compact ? 58 : 64
         let titleWidth = width * (compact ? 0.72 : 0.69)
-        let ctaWidth = min(max(width * 0.54, 190), 228)
-        let infoWidth = min(max(width * 0.38, 132), 158)
+        let rowHorizontalPadding: CGFloat = 14
+        let rowSpacing: CGFloat = 10
+        let actionRowWidth = max(0, width - (rowHorizontalPadding * 2))
+        let infoWidth: CGFloat = compact ? min(118, actionRowWidth * 0.36) : min(132, actionRowWidth * 0.38)
+        let ctaWidth = max(150, actionRowWidth - infoWidth - rowSpacing)
 
         return ZStack {
             AsyncImage(url: URL(string: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1800&q=94")) { phase in
@@ -181,21 +184,23 @@ struct SmartHomeDashboardView: View {
 
                 Spacer()
 
-                HStack(alignment: .bottom, spacing: 10) {
+                HStack(alignment: .bottom, spacing: rowSpacing) {
                     NavigationLink(destination: SmartMoveCommandCenterView()) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: compact ? 8 : 10) {
                             Text("Start My Move")
                                 .lineLimit(1)
-                            Spacer(minLength: 4)
+                                .minimumScaleFactor(0.74)
+                                .layoutPriority(1)
+                            Spacer(minLength: 0)
                             Image(systemName: "arrow.right")
-                                .font(.system(size: 17, weight: .bold))
-                                .frame(width: 40, height: 40)
+                                .font(.system(size: compact ? 15 : 17, weight: .bold))
+                                .frame(width: compact ? 34 : 38, height: compact ? 34 : 38)
                                 .background(.white.opacity(0.16))
                                 .clipShape(Circle())
                         }
-                        .font(.system(size: compact ? 17 : 18, weight: .bold))
+                        .font(.system(size: compact ? 15 : 17, weight: .bold))
                         .foregroundStyle(.white)
-                        .padding(.leading, 18)
+                        .padding(.leading, compact ? 14 : 16)
                         .padding(.trailing, 8)
                         .frame(width: ctaWidth, height: 62)
                         .background(
@@ -211,9 +216,13 @@ struct SmartHomeDashboardView: View {
                     }
                     .buttonStyle(.plain)
 
-                    moveInfoCard(width: infoWidth)
+                    NavigationLink(destination: SmartMoveCommandCenterView()) {
+                        moveInfoCard(width: infoWidth)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Open My Move for Dubai")
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, rowHorizontalPadding)
                 .padding(.bottom, 16)
                 .offset(y: appeared ? 0 : 12)
                 .opacity(appeared ? 1 : 0)
@@ -227,35 +236,36 @@ struct SmartHomeDashboardView: View {
     }
 
     private func moveInfoCard(width: CGFloat) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 7) {
             Image(systemName: "mappin.and.ellipse")
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(DMTheme.greenDeep)
-                .frame(width: 34, height: 34)
+                .frame(width: 32, height: 32)
                 .background(DMTheme.mint)
                 .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Dubai")
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 12.5, weight: .bold))
                     .foregroundStyle(DMTheme.ink)
-                Text("A smoother move is just a tap away.")
+                Text("Open My Move")
                     .font(.system(size: 9.5, weight: .medium))
                     .foregroundStyle(.secondary)
-                    .lineLimit(3)
+                    .lineLimit(1)
             }
 
+            Spacer(minLength: 0)
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(DMTheme.ink.opacity(0.7))
         }
-        .padding(11)
-        .frame(width: width)
-        .frame(minHeight: 78)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 10)
+        .frame(width: width, minHeight: 62)
         .background(.ultraThinMaterial)
-        .background(.white.opacity(0.78))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 22).stroke(.white.opacity(0.82), lineWidth: 1))
+        .background(.white.opacity(0.82))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(.white.opacity(0.82), lineWidth: 1))
         .shadow(color: .black.opacity(0.09), radius: 12, y: 5)
     }
 
